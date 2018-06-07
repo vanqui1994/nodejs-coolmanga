@@ -1,0 +1,88 @@
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4 copyright" itemscope itemtype="http://schema.org/Organization">
+                <a itemprop="url" href="<%= info.bareUrl%>">
+                    <img itemprop="logo" src="<%= info.logo%>" style="width: 150px;height: 30px" alt="NetTruyen - Truyện tranh Online" />
+                </a>
+                <div class="mrt10">
+                    <div id="fb-root"></div>
+                    <div id="fb-root"></div>
+                    <script>(function (d, s, id) {
+                            var js, fjs = d.getElementsByTagName(s)[0];
+                            if (d.getElementById(id))
+                                return;
+                            js = d.createElement(s);
+                            js.id = id;
+                            js.src = 'https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v3.0&appId=300887193581358&autoLogAppEvents=1';
+                            fjs.parentNode.insertBefore(js, fjs);
+                        }(document, 'script', 'facebook-jssdk'));</script>
+                    <div class="fb-page" data-href="<%= info.fanpage%>" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="false">
+                        <blockquote cite="<%= info.fanpage%>" class="fb-xfbml-parse-ignore">
+                            <a href="<%= info.fanpage%>"><%= info.title%></a>
+                        </blockquote>
+                    </div>
+                </div>
+                <p>
+                    <%= info.footer%>
+                </p>
+            </div>
+            <div class="col-sm-8">
+                <div class='Module Module-55'>
+                    <div class='ModuleContent'>
+                        <div class="link-footer">
+                            <h4>Thể loại</h4>
+                            <ul>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/action">Action</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/adult">Adult</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/dam-my">Đam Mỹ</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/fantasy">Fantasy</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/gender-bender">Gender Bender</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/harem">Harem</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/manga">Manga</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/manhua">Manhua</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/manhwa">Manhwa</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/ngon-tinh">Ngôn Tình</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/one-shot">One shot</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/romance">Romance</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/shoujo">Shoujo</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/smut">Smut</a>
+                                </li>
+                                <li>
+                                    <a target="_self" href="/tim-truyen/xuyen-khong">Xuyên Không</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

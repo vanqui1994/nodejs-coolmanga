@@ -1,0 +1,106 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Đăng ký CoolManga</title>
+        <%- include login/head %>
+    </head>
+    <body>
+        <div class="container">
+            <%- include login/header %>
+            <div class="bg-main" style="display:block">
+                <div class="col-xs-12 col-md-12">
+                    <h1 class="title">Đăng ký tài khoản</h1>
+                    <h5 class="des">Đăng ký tài khoản ngay hôm nay để xem phim với chất lượng cao hoàn toàn miễn phí</h5>
+                </div>
+                <div class="col-xs-12 col-md-12" >
+                    <div class="row">
+                        <%if(data && data.error){%>
+                        <div class="alert alert-danger">
+                            <span><%= data.error %></span>
+                        </div>
+                        <%}%>
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-login">
+                                <div class="row login">
+                                    <form class="forms-horizontal col-xs-12 formRegister" action="/register" method="post">
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Họ và tên</span></div>
+                                        </div>
+                                        <div class="row col-md-10">
+                                            <input type="text" id="fullname" name="fullname" class="form-control" placeholder="Họ và tên" />
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Giới tính</span></div>
+                                        </div>
+                                        <div class="row col-md-10">
+                                            <input type="radio" class="gender" name="gender" value="1" checked=""/> Nam
+                                            <input type="radio" class="gender" name="gender" value="2"/> Nữ
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Ngày sinh</span></div>
+                                        </div>
+                                        <div class="row col-md-10">
+                                            <input type="text" id="birthday" name="birthday" class="form-control birthday" placeholder="Ngày sinh của bạn" />
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Email</span></div>
+                                        </div>
+                                        <div class="row col-md-10 rowEmail">
+                                            <input type="text" id="email" name="email" class="form-control" placeholder="Email" />
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Mật khẩu</span></div>
+                                        </div>
+                                        <div class="row col-md-10">
+                                            <input type="password" id="password" name="password" class="form-control" placeholder="Mật khẩu" />
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Xác nhận mật khẩu</span></div>
+                                        </div>
+                                        <div class="row col-md-10">
+                                            <input type="password" id="cpassword" name="rePassword" class="form-control" placeholder="Xác nhận mật khẩu" />
+                                        </div>
+                                        
+                                        <div class="row col-md-10">&nbsp;</div>
+
+                                        <div class="row">
+                                            <div class="col-md-10">
+                                                <input type="submit" id="login-origin"  class="btn btn-lg btn-block" value="Đăng ký">
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6">
+                            <div id="message-social" class="row col-md-8 button-login red-alert-social-mh"></div>
+                            <div class="form-social">
+                                <div class="row">
+                                    <form name="login-cash" class="col-xs-12">
+                                        <%- include login/right-bar %>
+                                        <div class="row col-md-8 button-login">
+                                            <input type="button" onclick="location.href = '/login'" id="acc-register" class="btn btn-lg btn-block btn-register" value="Đăng nhập"/>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <%- include login/footer %>
+        </div>
+        <!-- /container -->
+        <script>
+            Login.register();
+        </script>
+    </body>
+</html>

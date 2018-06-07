@@ -1,0 +1,74 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Đăng Nhập CoolManga</title>
+        <%- include login/head %>
+    </head>
+    <body>
+        <div class="container">
+            <%- include login/header %>
+            <div class="bg-main" style="display:block">
+                <div class="col-xs-12 col-md-12">
+                    <h1 class="title">Đăng nhập</h1>
+                    <h5 class="des">Đăng nhập ngay hôm nay để đọc truyện với chất lượng cao hoàn toàn miễn phí</h5>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="row">
+                        <%if(data && data.error){%>
+                        <div class="alert alert-danger">
+                            <span><%= data.error %></span>
+                        </div>
+                        <%}%>
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-login">
+                                <div class="row login">
+                                    <form class="forms-horizontal col-xs-12 frmLogin" action="/login" method="post">
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Email</span></div>
+                                        </div>
+                                        <div class="row col-md-10"><input type="text" id="email" name="email" class="form-control" placeholder="Email" /></div>
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login">Mật khẩu</span></div>
+                                        </div>
+                                        <div class="row col-md-10"><input type="password" id="password" name="password" class="form-control" placeholder="Mật khẩu" /></div>
+                                        <div class="row">
+                                            <div class="col-xs-12"><span id="title-login"></span></div>
+                                        </div>
+                                        <!--  <div class="row col-md-10">
+                                            <script src="https://www.google.com/recaptcha/api.js?hl=vi"></script>
+                                            <div class="g-recaptcha" data-sitekey="6LepjhEUAAAAAGE8xTkNpWDNGCUlEC43nSo6yWZQ"></div>
+                                        </div>-->
+                                        <div class="row col-md-10 button-login">
+                                            <input type="submit" id="login-origin" class="btn btn-lg btn-block" value="Đăng nhập">
+                                        </div>
+                                    </form>
+                                </div>
+                                <a href="/quen-mat-khau.html" id="forget" style="color: #FFF;padding: 0  20px;margin: 10px 0;display: inline-block;" ><span id="">Quên mật khẩu</span></a>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6">
+                            <div id="message-social" class="row col-md-8 button-login red-alert-social-mh"></div>
+                            <div class="form-social">
+                                <div class="row">
+                                    <form name="login-cash" class="col-xs-12">
+                                        <%- include login/right-bar %>
+                                        <div class="row col-md-8 button-login">
+                                            <input type="button" onclick="location.href = '/register'" id="acc-register" class="btn btn-lg btn-block btn-register" value="Đăng ký tài khoản"/>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <%- include login/footer %>
+        </div>
+        <script>
+            Login.login();
+        </script>
+    </body>
+</html>

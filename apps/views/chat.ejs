@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat Application</title>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+        <div class="container">
+            <ul id="conversation">
+
+            </ul>
+
+            <form>
+                <input type="text" class="form-control" name="message" id="message">
+                <button class="btn btn-success" id="btnSend">Send</button>
+            </form>
+
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.dev.js"></script>
+        <script type="text/javascript">
+            var socket = io.connect("http://dev.nodejs.com");
+
+            socket.on("connect", function () {
+                var username = prompt("What's your name?");
+                //gui len server
+                socket.emit("addUser", username);
+            });
+
+            //lang nghe
+            socket.on("updateMessage", function (data) {
+                $("#conversation").append("<li><b>" + data.sender + ": </b>" + data.message + "</li>");
+            });
+
+            $("#btnSend").click(function () {
+                var message = $("#message").val();
+                $("#message").val("");
+
+                if (message.trim().length != 0) {
+                    socket.emit("sendMessage", message);
+                }
+            });
+
+            $("form").submit(function () {
+                return false;
+            });
+        </script>
+    </body>
+</html>
