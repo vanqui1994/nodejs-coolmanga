@@ -48,6 +48,38 @@ var Category = {
                 }
             });
         });
+
+        $("#btnDelAll").click(function () {
+            var arrId = [];
+            $('.listID:checked').each(function (k, v) {
+                var cateID = $(v).val();
+                arrId.push(cateID);
+            });
+            bootbox.confirm("Bạn có muốn xóa danh sách thể loại này không", function (result) {
+                if (result == true) {
+                    if (arrId) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/admin/category/remove-all",
+                            cache: false,
+                            dataType: 'json',
+                            data: {
+                                arrId: arrId
+                            },
+                            beforeSend: function () {},
+                            success: function (data) {
+                                if (data.error) {
+                                    bootbox.alert(data.message);
+                                } else {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+        });
     },
     add: function () {
         $("#frm").validate({

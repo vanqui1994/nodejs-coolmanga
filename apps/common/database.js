@@ -1,8 +1,9 @@
 var config = require("config");
-var mysql = require("mysql");
+var mysql = require("mysql2");
 
 
 var connection = mysql.createConnection({
+    multipleStatements: true,
     host     : config.get("mysql.host"),
     user     : config.get("mysql.user"),
     password : config.get("mysql.password"),

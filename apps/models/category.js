@@ -29,12 +29,37 @@ function edit(params, arrCondition) {
         var strWhere = buildWhere(params);
         var strParams = buildParams(arrCondition);
         var sql = "UPDATE category SET " + strParams + " WHERE 1=1 " + strWhere;
-        
+
         conn.query(sql, function (error, results) {
             if (error) {
                 defer.reject(error);
             } else {
                 defer.resolve(results.affectedRows);
+            }
+        });
+        myCache.flushAll();
+        return defer.promise;
+    }
+    return false;
+}
+
+function editMulti(params, arrCondition, updatedBy) {
+    if (params && updatedBy) {
+        var defer = q.defer();
+        var strParams = buildParams(arrCondition);
+
+        var sql = '';
+        params.arrID.forEach(function (val) {
+            sql += "UPDATE category SET " + strParams + " WHERE " + updatedBy + " = " + parseInt(val) + "; ";
+        });
+
+        sql = sql.replace(/(^; )|(; $)/g, "");
+        conn.query(sql, function (error, results) {
+            if (error) {
+                defer.reject(error);
+            } else {
+                var resultData = (results[0]) ? results[0] : results;
+                defer.resolve(resultData.affectedRows);
             }
         });
         myCache.flushAll();
@@ -144,9 +169,15 @@ function buildWhere(params) {
         strWhere += " AND category_title like '%" + params.categoryTitle + "%'";
     }
 
+    if (params.category_title) {
+        strWhere += " AND category_title  = " + conn.escape(params.category_title);
+    }
+
     if (params.is_deleted != null) {
         strWhere += " AND is_deleted = " + conn.escape(params.is_deleted);
     }
+
+
 
     return strWhere;
 }
@@ -154,9 +185,20 @@ function buildWhere(params) {
 
 function buildParams(params) {
     var strParams = '';
-    
     if (params.is_deleted != null) {
-        strParams += " is_deleted = " + conn.escape(params.is_deleted)+",";
+        strParams += " is_deleted = " + conn.escape(params.is_deleted) + ",";
+    }
+
+    if (params.category_title) {
+        strParams += " category_title = " + conn.escape(params.category_title) + ",";
+    }
+
+    if (params.category_slug) {
+        strParams += " category_slug = " + conn.escape(params.category_slug) + ",";
+    }
+
+    if (params.site_title) {
+        strParams += " site_title = " + conn.escape(params.site_title) + ",";
     }
 
     strParams = strParams.replace(/(^,)|(,$)/g, "");
@@ -168,6 +210,7 @@ function buildParams(params) {
 module.exports = {
     add: add,
     edit: edit,
+    editMulti: editMulti,
     getList: getList,
     getListLimit: getListLimit,
     getTotal: getTotal

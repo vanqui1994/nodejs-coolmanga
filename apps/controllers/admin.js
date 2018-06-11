@@ -164,15 +164,15 @@ router.post("/category/add", async function (req, res) {
     if (isSignIn(req, res)) {
         var params = req.body;
 
-        if (params.categoryTitle.trim().length == 0 === 0) {
+        if (params.categoryTitle.trim().length == 0) {
             return res.render("admin/category/add", {data: {}, message: {error: "Vui lòng nhập tên thể loại"}});
         }
 
-        if (params.siteTitle.trim().length == 0 === 0) {
+        if (params.siteTitle.trim().length == 0) {
             return res.render("admin/category/add", {data: {}, message: {error: "Vui lòng nhập tiêu đề thể loại"}});
         }
 
-        var checkCategory = await categoryModels.getList({categoryTitle: params.categoryTitle.trim()}).then(function (data) {
+        var checkCategory = await categoryModels.getList({category_title: params.categoryTitle.trim()}).then(function (data) {
             return (data.length != 0) ? data[0] : '';
         });
         if (checkCategory) {
@@ -200,6 +200,80 @@ router.post("/category/add", async function (req, res) {
     }
 });
 
+router.get("/category/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+
+        if (params.id.length == 0) {
+            return res.render("admin/category/index", {data: {}, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataCategory = await categoryModels.getList({categoryID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (dataCategory.length == 0) {
+            return res.render("admin/category/index", {data: {}, message: {error: "ID không tồn tại"}});
+        }
+
+        res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {}});
+    }
+});
+
+router.post("/category/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        var body = req.body;
+
+        if (params.id.length == 0) {
+            return res.render("admin/category/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataCategory = await categoryModels.getList({categoryID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (dataCategory.length == 0) {
+            return res.render("admin/category/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+        }
+
+        if (body.categoryTitle.trim().length == 0) {
+            return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Vui lòng nhập tên thể loại"}});
+        }
+
+        if (body.siteTitle.trim().length == 0) {
+            return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Vui lòng nhập tiêu đề thể loại"}});
+        }
+
+        if (body.categoryTitle != dataCategory.category_title) {
+            var checkCategory = await categoryModels.getList({category_title: body.categoryTitle.trim()}).then(function (data) {
+                return (data.length != 0) ? data[0] : '';
+            });
+            if (checkCategory) {
+                return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Thể loại đã tồn tại"}});
+            }
+        }
+        
+        var slugTitle = slug(body.categoryTitle.trim().toLowerCase());
+
+        var objData = {
+            category_title: body.categoryTitle.trim(),
+            category_slug: slugTitle,
+            site_title: body.siteTitle.trim(),
+            is_deleted: 0
+        };
+        categoryModels.edit({categoryID:params.id},objData).then(function(data){
+            if(data){
+                return res.render("admin/category/edit", {data: {dataCategory: objData}, params: params, message: {success: "Chỉnh sửa thể loại thành công"}});
+            }else{
+                return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Chỉnh sửa thể loại thất bại"}});
+            }
+        }).catch(function(err){
+            return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Chỉnh sửa thể loại thất bại"}});
+        });
+    }
+});
+
 
 router.get("/category/remove/:id", async function (req, res) {
     if (isSignIn(req, res)) {
@@ -211,8 +285,8 @@ router.get("/category/remove/:id", async function (req, res) {
         var checkID = await categoryModels.getList({categoryID: params.id, is_deleted: 0}).then(function (data) {
             return (data.length != 0) ? data[0] : '';
         });
-        
-        if(checkID.length == 0){
+
+        if (checkID.length == 0) {
             return res.json({success: 0, error: 1, message: 'Id không tồn tại'});
         }
 
@@ -230,6 +304,26 @@ router.get("/category/remove/:id", async function (req, res) {
 
 });
 
+router.post("/category/remove-all", function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
+
+        var arrID = params.arrId;
+        if (arrID.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
+        }
+
+        categoryModels.editMulti({arrID: arrID}, {is_deleted: 1}, 'category_id').then(function (data) {
+            if (data) {
+                return res.json({success: 1, error: 0, message: 'Xóa thể loại thành công'});
+            } else {
+                return res.json({success: 0, error: 1, message: 'Không thể xóa thể loại'});
+            }
+        }).catch(function (err) {
+            return res.json({success: 0, error: 1, message: 'Không thể xóa thể loại'});
+        });
+    }
+});
 
 
 router.get("/403", function (req, res) {

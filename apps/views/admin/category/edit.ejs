@@ -1,8 +1,73 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include ../layout/head %>
+    </head>
+    <body>
+        <section id="container" >
+            <%- include ../layout/header %>
+            <%- include ../layout/sidebar %>
+            <!--main content start-->
+            <section id="main-content">
+                <section class="wrapper site-min-height">
+                    <%if(message && message.error){%>
+                    <div class="alert alert-block alert-danger fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-times-sign"></i> Lỗi!</h4>
+                        <p><%= message.error %></p>
+                    </div>
+                    <%}%>
+                    <%if(message && message.success){%>
+                    <div class="alert alert-success alert-block fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-ok-sign"></i> Hoàn tất!</h4>
+                        <p><%= message.success %></p>
+                    </div>
+                    <%}%>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <section class="panel panel-primary">
+                                <header class="panel-heading">Chỉnh sửa thể loại</header>
+                                <div class="panel-body">
+                                    <form id="frm" class="form-horizontal tasi-form" role="form" action="/admin/category/edit/<%= params.id%>" method="POST">
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="categoryTitle">Tên thể loại <span style="color:red">*</span></label>
+                                            <div class="col-lg-10">
+                                                <input type="text" name="categoryTitle" id="categoryTitle" class="form-control" placeholder="Nhập tên thể loại" maxlength="255" value="<%= data.dataCategory.category_title%>"/>
+                                            </div>
+                                        </div>
 
-/* 
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
 
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="siteTitle">Site Title <span style="color:red">*</span></label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" name="siteTitle" placeholder="Nhập thông tin title thể loại" value="<%= data.dataCategory.site_title%>"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-lg-offset-2 col-lg-10">
+                                                <button type="submit" class="btn btn-info">Hoàn tất</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+                <!--main content end-->
+                <%- include ../layout/footer %>
+            </section>
+            <%- include ../layout/script %>
+            <script src="/static/admin/js/lib/jquery.validate.min.js"></script>
+            <script src="/static/admin/js/my/category.js"></script>
+            <script>
+                Category.add();
+            </script>
+    </body>
+</html>

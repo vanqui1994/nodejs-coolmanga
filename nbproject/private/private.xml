@@ -2,20 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/helpers/helper.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/models/category.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/public/admin/js/my/config.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/views/index/user/change-password.ejs</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/package.json</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/public/frontend/js/my/user.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/config/passport.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/views/admin/layout/sidebar.ejs</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/views/admin/category/index.ejs</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/controllers/index.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/views/admin/category/add.ejs</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/controllers/admin.js</file>
-            <file>file:/Users/quinguyen/Downloads/Lập%20trình%20Web%20tốc%20độ%20cao,%20thời%20gian%20thực%20với%20NodeJS%20-/blog/apps/models/posts.js</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

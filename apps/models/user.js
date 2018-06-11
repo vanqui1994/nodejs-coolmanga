@@ -34,7 +34,7 @@ function edit(params, arrCondition) {
             if (error) {
                 defer.reject(error);
             } else {
-                defer.resolve(results);
+                defer.resolve(results.affectedRows);
             }
         });
         myCache.flushAll();

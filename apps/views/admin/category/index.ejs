@@ -10,6 +10,15 @@
             <!--main content start-->
             <section id="main-content">
                 <section class="wrapper site-min-height">
+                    <%if(message && message.error){%>
+                    <div class="alert alert-block alert-danger fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-times-sign"></i> Lỗi!</h4>
+                        <p><%= message.error %></p>
+                    </div>
+                    <%}%>
                     <div class="row">
                         <div class="col-lg-12">
                             <section class="panel panel-primary">
@@ -66,7 +75,7 @@
                                                         <%= el.category_slug%>
                                                     </td>
                                                     <td class="text-center">
-                                                        <a href="" class="btn btn-info fa fa-pencil action tooltips" data-placement="top" data-original-title="Chỉnh sửa thể loại"></a>
+                                                        <a href="/admin/category/edit/<%= el.category_id%>" class="btn btn-info fa fa-pencil action tooltips" data-placement="top" data-original-title="Chỉnh sửa thể loại"></a>
                                                         <button type="button" class="btn btn-danger fa fa-trash action tooltips btnDel" data-id="<%= el.category_id%>" data-placement="top" data-original-title="Xóa thể loại"></button>
                                                     </td>
                                                 </tr>
