@@ -100,3 +100,7 @@ var server = app.listen(port, host);
 var io = socketio(server);
 
 var socketcontrol = require(__dirname + '/apps/common/socketcontrol')(io);
+
+app.use(function (req, res) {
+    res.render('404');
+});

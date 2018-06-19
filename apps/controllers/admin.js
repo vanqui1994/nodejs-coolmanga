@@ -10,6 +10,7 @@ var slug = require('slug');
 var postModels = require("../models/posts");
 var configModels = require("../models/config");
 var categoryModels = require("../models/category");
+var authorModels = require("../models/author");
 
 var helper = require("../helpers/helper");
 
@@ -119,7 +120,6 @@ router.post("/config", async function (req, res) {
 
 });
 //end action
-
 
 //action category
 router.get("/category", async function (req, res) {
@@ -253,7 +253,7 @@ router.post("/category/edit/:id", async function (req, res) {
                 return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Thể loại đã tồn tại"}});
             }
         }
-        
+
         var slugTitle = slug(body.categoryTitle.trim().toLowerCase());
 
         var objData = {
@@ -262,18 +262,17 @@ router.post("/category/edit/:id", async function (req, res) {
             site_title: body.siteTitle.trim(),
             is_deleted: 0
         };
-        categoryModels.edit({categoryID:params.id},objData).then(function(data){
-            if(data){
+        categoryModels.edit({categoryID: params.id}, objData).then(function (data) {
+            if (data) {
                 return res.render("admin/category/edit", {data: {dataCategory: objData}, params: params, message: {success: "Chỉnh sửa thể loại thành công"}});
-            }else{
+            } else {
                 return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Chỉnh sửa thể loại thất bại"}});
             }
-        }).catch(function(err){
+        }).catch(function (err) {
             return res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {error: "Chỉnh sửa thể loại thất bại"}});
         });
     }
 });
-
 
 router.get("/category/remove/:id", async function (req, res) {
     if (isSignIn(req, res)) {
@@ -324,7 +323,64 @@ router.post("/category/remove-all", function (req, res) {
         });
     }
 });
+//////////////////////////////////
 
+
+//action author
+router.get("/author", function (req, res) {
+
+});
+
+router.get("/author/add", function (req, res) {
+    if (isSignIn(req, res)) {
+        res.render("admin/author/add", {data: {}, message: {}});
+    }
+});
+
+router.post("/author/add", function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
+
+        if (params.authorName.trim().length == 0) {
+            return res.render("admin/author/add", {data: {}, message: {error: "Vui lòng nhập tên tác giả"}});
+        }
+
+        var authorSlug = slug(params.authorName.trim().toLowerCase());
+
+        var objData = {
+            author_name: params.authorName.trim(),
+            author_slug: authorSlug,
+            is_deleted: 0
+        }
+
+        authorModels.add(objData).then(function (result) {
+            if (result) {
+                return res.render("admin/author/add", {data: {}, message: {success: "Thêm tác giả thành công"}});
+            } else {
+                return res.render("admin/author/add", {data: {}, message: {error: "Không thể thêm tác giả.Xin thử lại trong giây lát"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/author/add", {data: {}, message: {error: "Không thể thêm tác giả.Xin thử lại trong giây lát"}});
+        });
+    }
+});
+
+router.get("/author/edit/:id", function (req, res) {
+
+});
+
+router.post("/author/edit/:id", function (req, res) {
+
+});
+
+router.get("/author/remove/:id", function (req, res) {
+
+});
+
+router.get("/author/remove-all", function (req, res) {
+
+});
+//////////////////////////////////
 
 router.get("/403", function (req, res) {
     if (req.session.user) {
