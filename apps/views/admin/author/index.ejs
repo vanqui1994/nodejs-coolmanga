@@ -1,8 +1,107 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include ../layout/head %>
+    </head>
+    <body>
+        <section id="container" >
+            <%- include ../layout/header %>
+            <%- include ../layout/sidebar %>
+            <!--main content start-->
+            <section id="main-content">
+                <section class="wrapper site-min-height">
+                    <%if(message && message.error){%>
+                    <div class="alert alert-block alert-danger fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-times-sign"></i> Lỗi!</h4>
+                        <p><%= message.error %></p>
+                    </div>
+                    <%}%>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <section class="panel panel-primary">
+                                <header class="panel-heading">
+                                    Danh sách Tác giả
+                                    <button type="button" class="btn btn-success pull-right" id="btnToggleFilterOrder" style="margin:-6px -11px 0 0;">Ẩn/Hiện công cụ tìm kiếm</button>
+                                </header>
+                                <div class="panel-body" id="frmFilterVehicleTrip" style="">
+                                    <div id="frmFilterOrder" class="panel-body" style="<%= (params.isFilter == 1)?'display:block;':'display:none;' %>">
+                                        <form method="GET">
+                                            <input type="hidden" id="isFilter" name="isFilter" value="1"/>
+                                            <table class="table table-bordered table-condensed cf">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="col-sm-1" style="font-weight:600;">Tên tác giả</td>
+                                                        <td class="col-sm-5" style="font-weight:600;">
+                                                            <input id="orderID" type="text" name="authorName" class="form-control orderFilter" placeholder="Nhập tên tác giả" value="<%= (params.authorName)?params.authorName:''%>">
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <a  href="/admin/author" class="btn btn-danger">Bỏ tìm kiếm</a>
+                                            <button type="submit" class="btn btn-info">Tìm kiếm</button>
+                                        </form>
 
-/* 
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+                                    </div>
+                                    <button type="button" class="btn btn-warning showBtn" id="btnDelAll" style="display: none">Xóa tất cả</button>
+                                    <hr class="showBtn" style="display: none"/>
 
+                                    <table class="table table-bordered table-condensed table-striped cf">
+                                        <thead class="cf">
+                                            <th class="text-center" style="width: 3%">
+                                                <input type="checkbox" name="listID" value="" id="selectAllItem">
+                                            </th>
+                                            <th class="text-center">ID</th>
+                                            <th class="text-center">Tên tác giả</th>
+                                            <th class="text-center">Tên tối ưu</th>
+                                            <th class="text-center">Chức năng</th>
+                                        </thead>
+                                        <tbody>
+                                            <% if(data){%>
+                                                <% data.forEach(function(el, index) { %>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" name="listID" class="listID" value="<%= el.author_id%>">
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <%= el.author_id%>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <%= el.author_name%>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <%= el.author_slug%>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <a href="/admin/author/edit/<%= el.author_id%>" class="btn btn-info fa fa-pencil action tooltips" data-placement="top" data-original-title="Chỉnh sửa tác giả"></a>
+                                                            <button type="button" class="btn btn-danger fa fa-trash action tooltips btnDel" data-id="<%= el.author_id%>" data-placement="top" data-original-title="Xóa tác giả"></button>
+                                                        </td>
+                                                    </tr>
+                                                <%})%>
+                                            <% }else{%>
+                                            <tr>
+                                                <td colspan="5" class="text-center">Hiện tại chưa có dữ liệu</td>
+                                            </tr>
+                                            <%}%>
+                                        </tbody>
+                                    </table>
+                                    <div class="text-center">
+                                        
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+
+                <%- include ../layout/footer %>
+            </section>
+            <%- include ../layout/script %>
+            <script src="/static/admin/js/my/author.js"></script>
+            <script>
+                Author.index();
+            </script>
+    </body>
+</html>

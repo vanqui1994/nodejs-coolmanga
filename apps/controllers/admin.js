@@ -138,7 +138,7 @@ router.get("/category", async function (req, res) {
         }
 
         var intLimit = 15;
-        var intPage = (typeof req.query.page !== 'undefined') ? parseInt(req.query.page) : 1;
+        var intPage = (typeof paramsQuery.page !== 'undefined') ? parseInt(paramsQuery.page) : 1;
 
         var intTotal = await categoryModels.getTotal(objCondition).then(function (data) {
             return (data.length != 0) ? data[0].total : 0;
@@ -154,7 +154,7 @@ router.get("/category", async function (req, res) {
     }
 });
 
-router.get("/category/add", async function (req, res) {
+router.get("/category/add", function (req, res) {
     if (isSignIn(req, res)) {
         res.render("admin/category/add", {data: {}, message: {}});
     }
@@ -327,8 +327,36 @@ router.post("/category/remove-all", function (req, res) {
 
 
 //action author
-router.get("/author", function (req, res) {
+router.get("/author", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var paramsQuery = req.query;
 
+        var intLimit = 15;
+        var intPage = (typeof paramsQuery.page !== 'undefined') ? parseInt(paramsQuery.page) : 1;
+
+        if (paramsQuery.isFilter) {
+            var objCondition = {
+                authorName: paramsQuery.authorName.trim(),
+                is_deleted: 0
+            };
+        } else {
+            var objCondition = {
+                is_deleted: 0
+            };
+        }
+
+        var intTotal = await authorModels.getTotal(objCondition).then(function (data) {
+            return (data.length != 0) ? data[0].total : 0;
+        });
+
+        var paging = helper.paging("admin/author", paramsQuery, intTotal, intPage, intLimit);
+
+        var objAuthorList = await authorModels.getListLimit(objCondition, intPage, intLimit).then(function (data) {
+            return (data.length != 0) ? data : '';
+        });
+
+        res.render("admin/author/index", {data: objAuthorList, paging: paging, params: paramsQuery, message: {}});
+    }
 });
 
 router.get("/author/add", function (req, res) {
@@ -337,7 +365,7 @@ router.get("/author/add", function (req, res) {
     }
 });
 
-router.post("/author/add", function (req, res) {
+router.post("/author/add", async function (req, res) {
     if (isSignIn(req, res)) {
         var params = req.body;
 
@@ -347,11 +375,19 @@ router.post("/author/add", function (req, res) {
 
         var authorSlug = slug(params.authorName.trim().toLowerCase());
 
+        var checkAuthor = await authorModels.getList({author_name: params.authorName.trim()}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (checkAuthor) {
+            return res.render("admin/author/add", {data: {}, message: {error: "Tác giả này đã tồn tại"}});
+        }
+
         var objData = {
             author_name: params.authorName.trim(),
             author_slug: authorSlug,
             is_deleted: 0
-        }
+        };
 
         authorModels.add(objData).then(function (result) {
             if (result) {
@@ -365,20 +401,122 @@ router.post("/author/add", function (req, res) {
     }
 });
 
-router.get("/author/edit/:id", function (req, res) {
+router.get("/author/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
 
+        if (params.id.length == 0) {
+            return res.render("admin/author/index", {data: {}, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataAuthor = await authorModels.getList({authorID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (dataAuthor.length == 0) {
+            return res.render("admin/author/index", {data: {}, message: {error: "ID không tồn tại"}});
+        }
+
+        res.render("admin/author/edit", {data: {dataAuthor: dataAuthor}, params: params, message: {}});
+    }
 });
 
-router.post("/author/edit/:id", function (req, res) {
+router.post("/author/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        var body = req.body;
 
+        if (params.id.length == 0) {
+            return res.render("admin/author/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataAuthor = await authorModels.getList({authorID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (dataAuthor.length == 0) {
+            return res.render("admin/author/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+        }
+
+        if (body.authorName.trim().length == 0) {
+            return res.render("admin/author/edit", {data: {dataAuthor: dataAuthor}, params: params, message: {error: "Vui lòng nhập tên tác giả"}});
+        }
+
+        if (body.authorName != dataAuthor.author_name) {
+            var checkAuthor = await authorModels.getList({author_name: body.authorName.trim()}).then(function (data) {
+                return (data.length != 0) ? data[0] : '';
+            });
+
+            if (checkAuthor) {
+                return res.render("admin/author/edit", {data: {dataAuthor: dataAuthor}, params: params, message: {error: "Tác giả đã tồn tại"}});
+            }
+        }
+        var authorSlug = slug(body.authorName.trim().toLowerCase());
+
+        var objData = {
+            author_name: body.authorName.trim(),
+            author_slug: authorSlug,
+            is_deleted: 0
+        };
+        authorModels.edit({authorID: params.id}, objData).then(function (data) {
+            if (data) {
+                return res.render("admin/author/edit", {data: {dataAuthor: objData}, params: params, message: {success: "Chỉnh sửa tác giả thành công"}});
+            } else {
+                return res.render("admin/author/edit", {data: {dataAuthor: dataAuthor}, params: params, message: {error: "Chỉnh sửa tác giả thất bại"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/author/edit", {data: {dataAuthor: dataAuthor}, params: params, message: {error: "Chỉnh sửa tác giả thất bại"}});
+        });
+    }
 });
 
-router.get("/author/remove/:id", function (req, res) {
+router.get("/author/remove/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        if (params.id.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
+        }
 
+        var checkID = await authorModels.getList({authorID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (checkID.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không tồn tại'});
+        }
+
+
+        authorModels.edit({authorID: params.id}, {is_deleted: 1}).then(function (data) {
+            if (data) {
+                return res.json({success: 1, error: 0, message: 'Xóa tác giả thành công'});
+            } else {
+                return res.json({success: 0, error: 1, message: 'Không thể xóa tác giả'});
+            }
+        }).catch(function (err) {
+            return res.json({success: 0, error: 1, message: 'Không thể xóa tác giả'});
+        });
+    }
 });
 
-router.get("/author/remove-all", function (req, res) {
+router.post("/author/remove-all", function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
 
+        var arrID = params.arrId;
+        if (arrID.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
+        }
+
+        authorModels.editMulti({arrID: arrID}, {is_deleted: 1}, 'author_id').then(function (data) {
+            if (data) {
+                return res.json({success: 1, error: 0, message: 'Xóa thể loại thành công'});
+            } else {
+                return res.json({success: 0, error: 1, message: 'Không thể xóa thể loại'});
+            }
+        }).catch(function (err) {
+            return res.json({success: 0, error: 1, message: 'Không thể xóa thể loại'});
+        });
+    }
 });
 //////////////////////////////////
 

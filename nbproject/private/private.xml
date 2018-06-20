@@ -2,6 +2,16 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/controllers/admin.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/views/admin/category/add.ejs</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/public/admin/js/my/author.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/public/admin/js/my/category.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/views/admin/category/index.ejs</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/views/admin/author/index.ejs</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/models/author.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/console.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/views/admin/author/add.ejs</file>
+        </group>
     </open-files>
 </project-private>
