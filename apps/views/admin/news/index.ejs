@@ -33,14 +33,14 @@
                                             <table class="table table-bordered table-condensed cf">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="col-sm-1" style="font-weight:600;">Tên tác giả</td>
+                                                        <td class="col-sm-1" style="font-weight:600;">Tên tiêu đề</td>
                                                         <td class="col-sm-5" style="font-weight:600;">
-                                                            <input id="orderID" type="text" name="authorName" class="form-control orderFilter" placeholder="Nhập tên tác giả" value="<%= (params.authorName)?params.authorName:''%>">
+                                                            <input id="orderID" type="text" name="newsTitle" class="form-control orderFilter" placeholder="Nhập tên tác giả" value="<%= (params.newsTitle)?params.newsTitle:''%>">
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            <a  href="/admin/author" class="btn btn-danger">Bỏ tìm kiếm</a>
+                                            <a  href="/admin/news" class="btn btn-danger">Bỏ tìm kiếm</a>
                                             <button type="submit" class="btn btn-info">Tìm kiếm</button>
                                         </form>
 
@@ -54,7 +54,7 @@
                                                 <input type="checkbox" name="listID" value="" id="selectAllItem">
                                             </th>
                                             <th class="text-center">ID</th>
-                                            <th class="text-center">Tên tác giả</th>
+                                            <th class="text-center">Tên tiêu đề</th>
                                             <th class="text-center">Tên tối ưu</th>
                                             <th class="text-center">Chức năng</th>
                                         </thead>
@@ -63,20 +63,20 @@
                                                 <% data.forEach(function(el, index) { %>
                                                     <tr>
                                                         <td class="text-center">
-                                                            <input type="checkbox" name="listID" class="listID" value="<%= el.author_id%>">
+                                                            <input type="checkbox" name="listID" class="listID" value="<%= el.news_id%>">
                                                         </td>
                                                         <td class="text-center">
-                                                            <%= el.author_id%>
+                                                            <%= el.news_id%>
                                                         </td>
                                                         <td class="text-center">
-                                                            <%= el.author_name%>
+                                                            <%= el.news_title%>
                                                         </td>
                                                         <td class="text-center">
-                                                            <%= el.author_slug%>
+                                                            <%= el.news_slug%>
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="/admin/author/edit/<%= el.author_id%>" class="btn btn-info fa fa-pencil action tooltips" data-placement="top" data-original-title="Chỉnh sửa tác giả"></a>
-                                                            <button type="button" class="btn btn-danger fa fa-trash action tooltips btnDel" data-id="<%= el.author_id%>" data-placement="top" data-original-title="Xóa tác giả"></button>
+                                                            <a href="/admin/news/edit/<%= el.news_id%>" class="btn btn-info fa fa-pencil action tooltips" data-placement="top" data-original-title="Chỉnh sửa"></a>
+                                                            <button type="button" class="btn btn-danger fa fa-trash action tooltips btnDel" data-id="<%= el.news_id%>" data-placement="top" data-original-title="Xóa"></button>
                                                         </td>
                                                     </tr>
                                                 <%})%>
@@ -99,9 +99,9 @@
                 <%- include ../layout/footer %>
             </section>
             <%- include ../layout/script %>
-            <script src="/static/admin/js/my/author.js"></script>
+            <script src="/static/admin/js/my/news.js"></script>
             <script>
-                Author.index();
+                News.index();
             </script>
     </body>
 </html>

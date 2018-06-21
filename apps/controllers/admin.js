@@ -11,6 +11,7 @@ var postModels = require("../models/posts");
 var configModels = require("../models/config");
 var categoryModels = require("../models/category");
 var authorModels = require("../models/author");
+var newsModels = require("../models/news");
 
 var helper = require("../helpers/helper");
 
@@ -519,6 +520,139 @@ router.post("/author/remove-all", function (req, res) {
     }
 });
 //////////////////////////////////
+
+
+//action news
+router.get("/news", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var paramsQuery = req.query;
+
+        var intLimit = 15;
+        var intPage = (typeof paramsQuery.page !== 'undefined') ? parseInt(paramsQuery.page) : 1;
+
+        if (paramsQuery.isFilter) {
+            var objCondition = {
+                newsTitle: paramsQuery.newsTitle.trim(),
+                is_deleted: 0
+            };
+        } else {
+            var objCondition = {
+                is_deleted: 0
+            };
+        }
+
+        var intTotal = await newsModels.getTotal(objCondition).then(function (data) {
+            return (data.length != 0) ? data[0].total : 0;
+        });
+
+        var paging = helper.paging("admin/news", paramsQuery, intTotal, intPage, intLimit);
+
+        var objNewsList = await newsModels.getListLimit(objCondition, intPage, intLimit).then(function (data) {
+            return (data.length != 0) ? data : '';
+        });
+
+        res.render("admin/news/index", {data: objNewsList, paging: paging, params: paramsQuery, message: {}});
+    }
+});
+
+router.get("/news/add", function (req, res) {
+    if (isSignIn(req, res)) {
+        return res.render("admin/news/add", {data: {}, message: {}});
+    }
+});
+
+router.post("/news/add", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
+
+        if (params.newsTitle.trim().length == 0) {
+            return res.render("admin/news/add", {data: {}, message: {error: "Vui lòng nhập tiêu đề bài viết"}});
+        }
+
+        if (params.newsContent.trim().length == 0) {
+            return res.render("admin/news/add", {data: {}, message: {error: "Vui lòng nhập chi tiết bài viết"}});
+        }
+
+        var newsSlug = slug(params.newsTitle.trim().toLowerCase());
+        var timestamp = new Date / 1E3 | 0;
+
+        var objData = {
+            news_title: params.newsTitle.trim(),
+            news_slug: newsSlug,
+            news_content: params.newsContent.trim(),
+            is_deleted: 0,
+            created_date: timestamp
+        };
+
+        newsModels.add(objData).then(function (data) {
+            if(data){
+                return res.render("admin/news/add", {data: {}, message: {success: "Thêm bài viết thành công"}});
+            }else{
+                return res.render("admin/news/add", {data: {}, message: {error: "Không thể thêm bài viết"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/news/add", {data: {}, message: {error: "Không thể thêm bài viết"}});
+        });
+    }
+});
+
+router.get("/news/edit/:id", async function (req, res) {
+
+});
+
+router.post("/news/edit/:id", async function (req, res) {
+
+});
+
+router.get("/news/remove/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        if (params.id.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
+        }
+
+        var checkID = await newsModels.getList({newsID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (checkID.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không tồn tại'});
+        }
+
+
+        newsModels.edit({newsID: params.id}, {is_deleted: 1}).then(function (data) {
+            if (data) {
+                return res.json({success: 1, error: 0, message: 'Xóa bài viết thành công'});
+            } else {
+                return res.json({success: 0, error: 1, message: 'Không thể xóa bài viết'});
+            }
+        }).catch(function (err) {
+            return res.json({success: 0, error: 1, message: 'Không thể xóa bài viế'});
+        });
+    }
+});
+
+router.post("/news/remove-all", function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
+
+        var arrID = params.arrId;
+        if (arrID.length == 0) {
+            return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
+        }
+
+        newsModels.editMulti({arrID: arrID}, {is_deleted: 1}, 'news_id').then(function (data) {
+            if (data) {
+                return res.json({success: 1, error: 0, message: 'Xóa thể loại thành công'});
+            } else {
+                return res.json({success: 0, error: 1, message: 'Không thể xóa thể loại'});
+            }
+        }).catch(function (err) {
+            return res.json({success: 0, error: 1, message: 'Không thể xóa thể loại'});
+        });
+    }
+});
+/////////////////////////////////
 
 router.get("/403", function (req, res) {
     if (req.session.user) {

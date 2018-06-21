@@ -38,6 +38,20 @@
                     </li>
                 </ul>
             </li>
+            <li class="sub-menu">
+                <a href="javascript:;" class="<%= (stuff.url === '/admin/news' || stuff.url === '/admin/news/add')?'active dcjq-parent':''%>">
+                    <i class="fa fa-newspaper-o"></i>
+                    <span>Tin tức</span>
+                </a>
+                <ul class="sub">
+                    <li class="<%= (stuff.url === '/admin/news')?'active':''%>">
+                        <a href="/admin/news">Danh sách tin</a>
+                    </li>
+                    <li class="<%= (stuff.url === '/admin/news/add')?'active':''%>">
+                        <a href="/admin/news/add">Thêm tin mới</a>
+                    </li>
+                </ul>
+            </li>
 
         </ul>
         <!-- sidebar menu end-->
