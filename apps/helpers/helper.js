@@ -5,6 +5,7 @@ var nodemailer = require("nodemailer");
 var smtpTransport = require('nodemailer-smtp-transport');
 var handlebars = require('handlebars');
 var fs = require('fs');
+var _ = require('lodash');
 
 function hashPassword(password) {
     var saltRounds = config.get("salt");
@@ -141,6 +142,94 @@ function paging(path, objParams = {}, intTotal = 0, intCurrentPage = 1, intLimit
 
 }
 
+function categoryTree(sourceArr, parent = 0, selected = []) {
+    var resultArr = [];
+    if (sourceArr) {
+        sourceArr.forEach(function (item, k) {
+            if (item.parent_id == parent) {
+                var attr = {};
+                var state = 'close';
+
+                if (selected[item.menu_id]) {
+                    state = 'open';
+                }
+
+                if (item.parent_id == 0) {
+                    attr.class = 'main-catalog';
+                }
+
+                attr.id = item.menu_id;
+                attr.rel = item.menu_name + "|" + item.menu_url;
+                attr.value = item.parent_id;
+
+                var newParents = item.menu_id;
+                //delete sourceArr[k];
+
+                resultArr.push({
+                    attr: attr,
+                    data: item.menu_name,
+                    state: state,
+                    children: categoryTree(sourceArr, newParents, selected)
+                });
+            }
+        });
+    }
+    return resultArr;
+}
+
+function buildMenu(sourceArr, parentId = 0, currentId = 0, options = {}) {
+    var tree = listToTree(sourceArr);
+    var result = categoryTreeHtml(tree, parentId, currentId, options);
+    return result;
+}
+
+function categoryTreeHtml(sourceArr, parents = 0, currentId = 0, options = {}){
+    var menu = '';
+    sourceArr.forEach(function (value, k) {
+        var name = value.menu_name;
+        var id = value.menu_id;
+        var parentID = value.parent_id;
+
+        if (options.type == 'add') {
+            var strClass = '';
+            var radio = '';
+            if (parents == 0) {
+                strClass = 'main-catalog';
+            }
+            radio = '<input type="radio" name="parentID" value="' + id + '"><a href="#">' + name + '</a>';
+        }
+
+        menu += '<li class="' + strClass + '">';
+        menu += radio;
+        if (value.children.length != 0) {
+            menu += '<ul>';
+            menu += categoryTreeHtml(value.children, parentID, currentId, options);
+            menu += '</ul>';
+        }
+        menu += '</li>';
+    });
+    return menu;
+}
+
+function listToTree(list) {
+    var map = {}, node, roots = [], i;
+    for (i = 0; i < list.length; i += 1) {
+        map[list[i].menu_id] = i;
+        list[i].children = [];
+    }
+    for (i = 0; i < list.length; i += 1) {
+        node = list[i];
+        if (node.parent_id !== 0) {
+            list[map[node.parent_id]].children.push(node);
+        } else {
+            roots.push(node);
+        }
+    }
+    return roots;
+}
+
+
+
 
 
 module.exports = {
@@ -149,5 +238,7 @@ module.exports = {
     getTimeStamp: getTimeStamp,
     sendMail: sendMail,
     paging: paging,
-    getTimeStampFolder:getTimeStampFolder
+    getTimeStampFolder: getTimeStampFolder,
+    categoryTree: categoryTree,
+    buildMenu: buildMenu
 };

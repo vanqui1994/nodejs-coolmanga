@@ -7,11 +7,11 @@ var unique = require('array-unique');
 var slug = require('slug');
 
 
-var postModels = require("../models/posts");
 var configModels = require("../models/config");
 var categoryModels = require("../models/category");
 var authorModels = require("../models/author");
 var newsModels = require("../models/news");
+var menuModels = require("../models/menu");
 
 var helper = require("../helpers/helper");
 
@@ -22,23 +22,7 @@ var router = express.Router();
 router.get("/", function (req, res) {
     var auth = isSignIn(req, res);
     if (auth) {
-        var intLimit = 5;
-        var intPage = (typeof req.query.page !== 'undefined') ? parseInt(req.query.page) : 1;
-
-        postModels.getTotal({}).then(function (posts) {
-            var intTotal = posts[0].total;
-
-            var paging = helper.paging("admin", {}, intTotal, intPage, intLimit);
-            postModels.getListLimit({}, intPage, intLimit).then(function (posts) {
-                var data = {
-                    posts: posts,
-                    error: false
-                };
-                res.render("admin/dashboard", {data: data, helper: helper, paging: paging});
-            });
-        }).catch(function (error) {
-            res.render("admin/dashboard", {data: {error: true}});
-        });
+        res.render("admin/dashboard", {data: {error: true}});
     }
 });
 
@@ -585,9 +569,9 @@ router.post("/news/add", async function (req, res) {
         };
 
         newsModels.add(objData).then(function (data) {
-            if(data){
+            if (data) {
                 return res.render("admin/news/add", {data: {}, message: {success: "Thêm bài viết thành công"}});
-            }else{
+            } else {
                 return res.render("admin/news/add", {data: {}, message: {error: "Không thể thêm bài viết"}});
             }
         }).catch(function (err) {
@@ -597,11 +581,77 @@ router.post("/news/add", async function (req, res) {
 });
 
 router.get("/news/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
 
+        if (params.id.length == 0) {
+            return res.render("admin/news/index", {data: {}, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataNews = await newsModels.getList({newsID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (dataNews.length == 0) {
+            return res.render("admin/news/index", {data: {}, message: {error: "ID không tồn tại"}});
+        }
+
+        res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {}});
+    }
 });
 
 router.post("/news/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        var body = req.body;
 
+        if (params.id.length == 0) {
+            return res.render("admin/news/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataNews = await newsModels.getList({newsID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (dataNews.length == 0) {
+            return res.render("admin/news/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+        }
+
+        if (body.newsTitle.trim().length == 0) {
+            return res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {error: "Vui lòng nhập tiêu đề"}});
+        }
+
+        if (body.newsContent.trim().length == 0) {
+            return res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {error: "Vui lòng nhập chi tiết bài viết"}});
+        }
+
+        if (body.newsTitle != dataNews.news_title) {
+            var checkNews = await newsModels.getList({news_title: body.newsTitle.trim()}).then(function (data) {
+                return (data.length != 0) ? data[0] : '';
+            });
+
+            if (checkNews) {
+                return res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {error: "Tiêu đề đã tồn tại"}});
+            }
+        }
+        var newslug = slug(body.newsTitle.trim().toLowerCase());
+
+        var objData = {
+            news_title: body.newsTitle.trim(),
+            news_slug: newslug,
+            news_content: body.newsContent.trim(),
+            is_deleted: 0
+        };
+        newsModels.edit({news_id: params.id}, objData).then(function (data) {
+            if (data) {
+                return res.render("admin/news/edit", {data: {dataNews: objData}, params: params, message: {success: "Chỉnh sửa bài viết thành công"}});
+            } else {
+                return res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {error: "Chỉnh sửa bài viết thất bại"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {error: "Chỉnh sửa bài viết thất bại"}});
+        });
+    }
 });
 
 router.get("/news/remove/:id", async function (req, res) {
@@ -653,6 +703,61 @@ router.post("/news/remove-all", function (req, res) {
     }
 });
 /////////////////////////////////
+
+
+
+//action menu
+router.get("/menu", async function (req, res) {
+    if (isSignIn(req, res)) {
+        res.render("admin/menu/index", {data: {}, message: {}});
+    }
+});
+
+router.post("/menu/get-child", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
+
+
+        var menuList = await menuModels.getList({}).then(function (data) {
+            return (data.length != 0) ? data : {};
+        });
+        if (params.type == 'add' || params.type == 'edit') {
+            var categoryTree = helper.buildMenu(menuList, 0, 0, params);
+        } else {
+            var categoryTree = helper.categoryTree(menuList, 0, []);
+
+            if (categoryTree.length == 0) {
+                categoryTree = helper.categoryTree(menuList, 0, []);
+            }
+        }
+
+        return res.json(categoryTree);
+    }
+});
+
+router.get("/menu/add", function (req, res) {
+    if (isSignIn(req, res)) {
+
+        res.render("admin/menu/add", {data: {}, message: {}})
+    }
+});
+
+router.post("/menu/add", async function (req, res) {
+
+});
+
+router.get("/menu/edit/:id", async function (req, res) {
+
+});
+
+router.post("/menu/edit/:id", async function (req, res) {
+
+});
+
+router.get("/menu/remove/:id", async function (req, res) {
+
+});
+///////////////////////////////
 
 router.get("/403", function (req, res) {
     if (req.session.user) {

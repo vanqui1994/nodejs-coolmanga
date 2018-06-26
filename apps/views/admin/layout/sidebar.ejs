@@ -52,6 +52,20 @@
                     </li>
                 </ul>
             </li>
+            <li class="sub-menu">
+                <a href="javascript:;" class="<%= (stuff.url === '/admin/menu' || stuff.url === '/admin/menu/add')?'active dcjq-parent':''%>">
+                    <i class="fa fa-tasks"></i>
+                    <span>Menu</span>
+                </a>
+                <ul class="sub">
+                    <li class="<%= (stuff.url === '/admin/menu')?'active':''%>">
+                        <a href="/admin/menu">Danh sách menu</a>
+                    </li>
+                    <li class="<%= (stuff.url === '/admin/menu/add')?'active':''%>">
+                        <a href="/admin/menu/add">Thêm menu mới</a>
+                    </li>
+                </ul>
+            </li>
 
         </ul>
         <!-- sidebar menu end-->
