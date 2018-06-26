@@ -199,6 +199,28 @@ function categoryTreeHtml(sourceArr, parents = 0, currentId = 0, options = {}){
             radio = '<input type="radio" name="parentID" value="' + id + '"><a href="#">' + name + '</a>';
         }
 
+        if (options.type == 'edit') {
+            if (options.parent_id == 0) {
+                if (parents == 0) {
+                    strClass = 'main-category';
+                } else {
+                    strClass = '';
+                }
+                radio = '<a href="#">' + name + '</a>';
+            } else {
+                strClass = '';
+                if (parents == 0) {
+                    strClass = 'main-catalog';
+                }
+                if (options.parent_id == id) {
+                    var checked = 'checked="checked"';
+                } else {
+                    var checked = '';
+                }
+                radio = '<input type="radio" name="parentID" value="' + id + '"' + checked + '><a href="#">' + name + '</a>';
+            }
+        }
+
         menu += '<li class="' + strClass + '">';
         menu += radio;
         if (value.children.length != 0) {

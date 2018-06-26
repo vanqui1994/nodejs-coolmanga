@@ -68,24 +68,30 @@ var Menu = {
             });
 
             /*++++++ Edit Catalog Click +++++++*/
-            
-            $(document).on("click", ".remove", function () {
-                var menuID = $(this).attr('data-menuID');
-                $.ajax({
-                    url: '/backend/menu/delete-menu',
-                    dataType: 'json',
-                    type: 'GET',
-                    data: {
-                        menuID: menuID
-                    },
-                    success: function (result) {
-                        if (result) {
-                            return bootbox.alert(result.message, function () {
-                                window.location = window.location
-                            });
-                        }
+
+            $(document).on("click", ".btnDel", function () {
+                var menuID = $(this).attr('data-id');
+                bootbox.confirm("Bạn có muốn xóa menu này không", function (result) {
+                    if (result == true && menuID) {
+                        $.ajax({
+                            url: '/admin/menu/remove',
+                            dataType: 'json',
+                            type: 'GET',
+                            data: {
+                                menuID: menuID
+                            },
+                            success: function (result) {
+                                if (result.success) {
+                                    return bootbox.alert(result.message, function () {
+                                        window.location = window.location
+                                    });
+                                }
+                                return bootbox.alert(result.message);
+                            }
+                        });
                     }
                 });
+
             });
 
         });
@@ -95,7 +101,7 @@ var Menu = {
         $("#frm").validate({
             ignore: '.ignore',
             rules: {
-                menuName: {required: true, minlength: 3, maxlength: 255},
+                menuName: {required: true, minlength: 3, maxlength: 255}
             }, messages: {
                 menuName: {
                     required: 'Xin vui lòng nhập tên menu.',
@@ -134,11 +140,48 @@ var Menu = {
             }
         });
 
-        /*++++++ Catalog Filter +++++++*/
-        $('select#catalogTypeSelect').change(function () {
-            catalogType = $(this).val();
-            $('div#catalog-tree').jstree("refresh");
+
+    },
+    edit: function (parent_id) {
+        $("#frm").validate({
+            ignore: '.ignore',
+            rules: {
+                menuName: {required: true, minlength: 3, maxlength: 255}
+            }, messages: {
+                menuName: {
+                    required: 'Xin vui lòng nhập tên menu.',
+                    minlength: 'Tên menu tối thiểu từ 3 kí tự trở lên.',
+                    maxlength: 'Tên menu tối đa 255 kí tự'
+                }
+            }
         });
+
+        $('div#catalog-tree').jstree({
+            "plugins": [
+                "themes", "ui", "html_data",
+            ],
+            "themes": {
+                "theme": "default",
+                "dots": true,
+                "icons": false
+            },
+            "core": {"animation": 300, },
+            "html_data": {
+                "ajax": {
+                    "url": "/admin/menu/get-child",
+                    "type": "post",
+                    "dataType": 'json',
+                    "data": function (n) {
+                        return {
+                            type: 'edit',
+                            parent_id: parent_id
+                        };
+                    },
+                    "success": function (res) {
+                    }
+                }
+            }
+        })
     }
 };
 

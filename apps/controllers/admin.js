@@ -677,7 +677,7 @@ router.get("/news/remove/:id", async function (req, res) {
                 return res.json({success: 0, error: 1, message: 'Không thể xóa bài viết'});
             }
         }).catch(function (err) {
-            return res.json({success: 0, error: 1, message: 'Không thể xóa bài viế'});
+            return res.json({success: 0, error: 1, message: 'Không thể xóa bài viết'});
         });
     }
 });
@@ -705,7 +705,6 @@ router.post("/news/remove-all", function (req, res) {
 /////////////////////////////////
 
 
-
 //action menu
 router.get("/menu", async function (req, res) {
     if (isSignIn(req, res)) {
@@ -716,7 +715,6 @@ router.get("/menu", async function (req, res) {
 router.post("/menu/get-child", async function (req, res) {
     if (isSignIn(req, res)) {
         var params = req.body;
-
 
         var menuList = await menuModels.getList({}).then(function (data) {
             return (data.length != 0) ? data : {};
@@ -737,25 +735,172 @@ router.post("/menu/get-child", async function (req, res) {
 
 router.get("/menu/add", function (req, res) {
     if (isSignIn(req, res)) {
-
-        res.render("admin/menu/add", {data: {}, message: {}})
+        res.render("admin/menu/add", {data: {}, message: {}});
     }
 });
 
 router.post("/menu/add", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.body;
 
+        if (params.menuName.trim().length == 0) {
+            return res.render("admin/menu/add", {data: {}, message: {error: "Vui lòng nhập tên menu"}});
+        }
+
+        if (params.parentID == '' || params.parentID == null) {
+            return res.render("admin/menu/add", {data: {}, message: {error: "Vui lòng chọn danh mục"}});
+        }
+
+        if (params.menuTarget == 'on') {
+            var target = 1;
+        } else {
+            var target = 0;
+        }
+
+        var menuSlug = slug(params.menuName.trim().toLowerCase());
+
+        var objData = {
+            menu_name: params.menuName.trim(),
+            menu_url: menuSlug,
+            target: target,
+            parent_id: parseInt(params.parentID),
+            is_deleted: 0
+        };
+
+        var checkMenu = await menuModels.getList({menu_name: params.menuName.trim(), parentID: parseInt(params.parentID), is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        if (checkMenu) {
+            return res.render("admin/menu/add", {data: {}, message: {error: "Menu đã tồn tại"}});
+        }
+
+        menuModels.add(objData).then(function (data) {
+            if (data) {
+                return res.render("admin/menu/add", {data: {}, message: {success: "Thêm menu thành công"}});
+            } else {
+                return res.render("admin/menu/add", {data: {}, message: {error: "Không thể thêm menu"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/menu/add", {data: {}, message: {error: "Không thể thêm menu"}});
+        });
+
+    }
 });
 
 router.get("/menu/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
 
+        if (params.id.length == 0) {
+            return res.render("admin/menu/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataMenu = await menuModels.getList({menuID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+        res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {}});
+    }
 });
 
 router.post("/menu/edit/:id", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        var body = req.body;
 
+        if (params.id.length == 0) {
+            return res.render("admin/menu/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+        }
+
+        var dataMenu = await menuModels.getList({menuID: params.id, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+
+
+        if (dataMenu.length == 0) {
+            return res.render("admin/menu/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+        }
+
+        if (body.menuName.trim().length == 0) {
+            return res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {error: "Vui lòng nhập tên menu"}});
+        }
+
+        if (body.parentID == '' || body.parentID == null) {
+            return res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {error: "Vui lòng chọn danh mục"}});
+        }
+
+        if (body.menuTarget == 'on') {
+            var target = 1;
+        } else {
+            var target = 0;
+        }
+
+        if (body.menuName.trim() != dataMenu.menu_name) {
+            var checkMenu = await menuModels.getList({menu_name: body.menuName.trim(), parentID: parseInt(body.parentID), is_deleted: 0}).then(function (data) {
+                return (data.length != 0) ? data[0] : '';
+            });
+
+            if (checkMenu) {
+                return res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {error: "Menu đã tồn tại"}});
+            }
+        }
+
+        var menuSlug = slug(body.menuName.trim().toLowerCase());
+
+        var objData = {
+            menu_name: body.menuName.trim(),
+            menu_url: menuSlug,
+            target: target,
+            parent_id: parseInt(body.parentID),
+            is_deleted: 0
+        };
+        menuModels.edit({menuID: params.id}, objData).then(function (data) {
+            if (data) {
+                return res.render("admin/menu/edit", {data: {dataMenu: objData}, params: params, message: {success: "Chỉnh sửa menu thành công"}});
+            } else {
+                return res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {error: "Chỉnh sửa menu thất bại"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {error: "Chỉnh sửa menu thất bại"}});
+        });
+    }
 });
 
-router.get("/menu/remove/:id", async function (req, res) {
+router.get("/menu/remove", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.query;
 
+        var menuID = parseInt(params.menuID);
+        if(menuID.length == 0){
+            return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
+        }
+        var checkMenu = await menuModels.getList({menuID: menuID, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+        
+        if(checkMenu.length == 0){
+            return res.json({success: 0, error: 1, message: 'Id không tồn tại'});
+        }
+        
+        var checkMenuParent = await menuModels.getList({parentID: menuID, is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data[0] : '';
+        });
+        
+        if(checkMenuParent){
+            return res.json({success: 0, error: 1, message: 'Không thể xóa danh mục chính'});
+        }
+        
+        menuModels.edit({menuID: menuID}, {is_deleted: 1}).then(function (data) {
+            if (data) {
+                return res.json({success: 1, error: 0, message: 'Xóa menu thành công'});
+            } else {
+                return res.json({success: 0, error: 1, message: 'Không thể xóa menu'});
+            }
+        }).catch(function (err) {
+            return res.json({success: 0, error: 1, message: 'Không thể xóa menu'});
+        });
+    }
 });
 ///////////////////////////////
 

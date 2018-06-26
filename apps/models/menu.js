@@ -175,6 +175,10 @@ function buildWhere(params) {
     if (params.menu_name) {
         strWhere += " AND menu_name  = " + conn.escape(params.menu_name);
     }
+    
+    if (params.parentID) {
+        strWhere += " AND parent_id  = " + conn.escape(params.parentID);
+    }
 
     if (params.is_deleted != null) {
         strWhere += " AND is_deleted = " + conn.escape(params.is_deleted);
@@ -188,6 +192,7 @@ function buildWhere(params) {
 
 function buildParams(params) {
     var strParams = '';
+    
     if (params.is_deleted != null) {
         strParams += " is_deleted = " + conn.escape(params.is_deleted) + ",";
     }
@@ -196,8 +201,16 @@ function buildParams(params) {
         strParams += " menu_name = " + conn.escape(params.menu_name) + ",";
     }
 
-    if (params.menu_slug) {
-        strParams += " menu_slug = " + conn.escape(params.menu_slug) + ",";
+    if (params.menu_url) {
+        strParams += " menu_url = " + conn.escape(params.menu_url) + ",";
+    }
+    
+    if (params.target != '' || params.target != null) {
+        strParams += " target = " + conn.escape(params.target) + ",";
+    }
+    
+    if (params.parent_id != '' || params.parent_id != null) {
+        strParams += " parent_id = " + conn.escape(params.parent_id) + ",";
     }
 
 
