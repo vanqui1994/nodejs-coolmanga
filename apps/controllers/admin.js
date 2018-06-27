@@ -198,7 +198,7 @@ router.get("/category/edit/:id", async function (req, res) {
         });
 
         if (dataCategory.length == 0) {
-            return res.render("admin/category/index", {data: {}, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/category");
         }
 
         res.render("admin/category/edit", {data: {dataCategory: dataCategory}, params: params, message: {}});
@@ -219,7 +219,7 @@ router.post("/category/edit/:id", async function (req, res) {
         });
 
         if (dataCategory.length == 0) {
-            return res.render("admin/category/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/category");
         }
 
         if (body.categoryTitle.trim().length == 0) {
@@ -399,7 +399,7 @@ router.get("/author/edit/:id", async function (req, res) {
         });
 
         if (dataAuthor.length == 0) {
-            return res.render("admin/author/index", {data: {}, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/author");
         }
 
         res.render("admin/author/edit", {data: {dataAuthor: dataAuthor}, params: params, message: {}});
@@ -420,7 +420,7 @@ router.post("/author/edit/:id", async function (req, res) {
         });
 
         if (dataAuthor.length == 0) {
-            return res.render("admin/author/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/author");
         }
 
         if (body.authorName.trim().length == 0) {
@@ -593,7 +593,7 @@ router.get("/news/edit/:id", async function (req, res) {
         });
 
         if (dataNews.length == 0) {
-            return res.render("admin/news/index", {data: {}, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/news");
         }
 
         res.render("admin/news/edit", {data: {dataNews: dataNews}, params: params, message: {}});
@@ -614,7 +614,7 @@ router.post("/news/edit/:id", async function (req, res) {
         });
 
         if (dataNews.length == 0) {
-            return res.render("admin/news/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/news");
         }
 
         if (body.newsTitle.trim().length == 0) {
@@ -799,6 +799,10 @@ router.get("/menu/edit/:id", async function (req, res) {
         var dataMenu = await menuModels.getList({menuID: params.id, is_deleted: 0}).then(function (data) {
             return (data.length != 0) ? data[0] : '';
         });
+        
+        if(dataMenu.length == 0){
+            return res.redirect("/admin/menu");
+        }
 
         res.render("admin/menu/edit", {data: {dataMenu: dataMenu}, params: params, message: {}});
     }
@@ -819,7 +823,7 @@ router.post("/menu/edit/:id", async function (req, res) {
 
 
         if (dataMenu.length == 0) {
-            return res.render("admin/menu/index", {data: {}, params: params, message: {error: "ID không tồn tại"}});
+            return res.redirect("/admin/menu");
         }
 
         if (body.menuName.trim().length == 0) {
