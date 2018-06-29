@@ -5,7 +5,9 @@
         <group>
             <file>file:/Users/quinguyen/code/nodejs-coolmanga/package.json</file>
             <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/controllers/admin.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/views/chat.ejs</file>
             <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/helpers/helper.js</file>
+            <file>file:/Users/quinguyen/code/nodejs-coolmanga/apps/common/socketcontrol.js</file>
         </group>
     </open-files>
 </project-private>

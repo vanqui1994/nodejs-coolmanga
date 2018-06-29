@@ -36,7 +36,7 @@ app.get('/auth/facebook', passport.authenticate('facebook', {scope: ['email']}))
 app.get('/auth/facebook/callback', passport.authenticate('facebook'), function (req, res) {
     if (req.query.code && req.session.passport) {
         req.session.user = req.session.passport.user;
-        res.redirect("/trang-ca-nhan.html");
+        res.redirect("/dashboard");
     } else {
         res.redirect("/");
     }
@@ -48,7 +48,7 @@ app.get('/auth/google',passport.authenticate('google', {scope: ['profile', 'emai
 app.get('/auth/google/callback', passport.authenticate('google'), function (req, res) {
     if (req.query.code && req.session.passport) {
         req.session.user = req.session.passport.user;
-        res.redirect("/trang-ca-nhan.html");
+        res.redirect("/dashboard");
     } else {
         res.redirect("/");
     }

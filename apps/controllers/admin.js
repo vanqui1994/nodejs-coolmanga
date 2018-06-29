@@ -190,7 +190,7 @@ router.get("/category/edit/:id", async function (req, res) {
         var params = req.params;
 
         if (params.id.length == 0) {
-            return res.render("admin/category/index", {data: {}, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/category");
         }
 
         var dataCategory = await categoryModels.getList({categoryID: params.id, is_deleted: 0}).then(function (data) {
@@ -211,7 +211,7 @@ router.post("/category/edit/:id", async function (req, res) {
         var body = req.body;
 
         if (params.id.length == 0) {
-            return res.render("admin/category/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/category");
         }
 
         var dataCategory = await categoryModels.getList({categoryID: params.id, is_deleted: 0}).then(function (data) {
@@ -391,7 +391,7 @@ router.get("/author/edit/:id", async function (req, res) {
         var params = req.params;
 
         if (params.id.length == 0) {
-            return res.render("admin/author/index", {data: {}, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/author");
         }
 
         var dataAuthor = await authorModels.getList({authorID: params.id, is_deleted: 0}).then(function (data) {
@@ -412,7 +412,7 @@ router.post("/author/edit/:id", async function (req, res) {
         var body = req.body;
 
         if (params.id.length == 0) {
-            return res.render("admin/author/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/author");
         }
 
         var dataAuthor = await authorModels.getList({authorID: params.id, is_deleted: 0}).then(function (data) {
@@ -585,7 +585,7 @@ router.get("/news/edit/:id", async function (req, res) {
         var params = req.params;
 
         if (params.id.length == 0) {
-            return res.render("admin/news/index", {data: {}, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/news");
         }
 
         var dataNews = await newsModels.getList({newsID: params.id, is_deleted: 0}).then(function (data) {
@@ -606,7 +606,7 @@ router.post("/news/edit/:id", async function (req, res) {
         var body = req.body;
 
         if (params.id.length == 0) {
-            return res.render("admin/news/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/news");
         }
 
         var dataNews = await newsModels.getList({newsID: params.id, is_deleted: 0}).then(function (data) {
@@ -793,7 +793,7 @@ router.get("/menu/edit/:id", async function (req, res) {
         var params = req.params;
 
         if (params.id.length == 0) {
-            return res.render("admin/menu/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/menu");
         }
 
         var dataMenu = await menuModels.getList({menuID: params.id, is_deleted: 0}).then(function (data) {
@@ -814,7 +814,7 @@ router.post("/menu/edit/:id", async function (req, res) {
         var body = req.body;
 
         if (params.id.length == 0) {
-            return res.render("admin/menu/index", {data: {}, params: params, message: {error: "ID không được bỏ trống"}});
+            return res.redirect("/admin/menu");
         }
 
         var dataMenu = await menuModels.getList({menuID: params.id, is_deleted: 0}).then(function (data) {
@@ -906,6 +906,38 @@ router.get("/menu/remove", async function (req, res) {
         });
     }
 });
+///////////////////////////////
+
+
+//action comic
+router.get("/comic", async function(req,res){
+    
+});
+
+router.get("/comic/add",function(req,res){
+    
+});
+
+router.post("/comic/add", async function(req,res){
+    
+});
+
+router.get("/comic/edit/:id", async function(req,res){
+    
+});
+
+router.post("/comic/edit/:id", async function(req,res){
+    
+});
+
+router.get("/comic/remove", async function(req,res){
+    
+});
+
+router.post("/comic/grab",async function(req,res){
+    
+});
+
 ///////////////////////////////
 
 router.get("/403", function (req, res) {

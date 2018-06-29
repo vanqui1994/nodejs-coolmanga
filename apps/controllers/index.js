@@ -3,6 +3,7 @@ var md5 = require("md5");
 var redis = require('redis');
 var client = redis.createClient();
 var config = require("config");
+var request = require('request');
 
 var userModels = require("../models/user");
 
@@ -21,7 +22,7 @@ router.get("/", function (req, res) {
 });
 
 
-router.get("/trang-ca-nhan.html", function (req, res) {
+router.get("/dashboard", function (req, res) {
     if (req.session.user) {
         var dataUser = userModels.getList({user_id: req.session.user.user_id, is_deleted: 0});
         dataUser.then(function (data) {
@@ -40,7 +41,7 @@ router.get("/trang-ca-nhan.html", function (req, res) {
     }
 });
 
-router.get("/doi-mat-khau.html", function (req, res) {
+router.get("/change-password", function (req, res) {
     if (req.session.user) {
         var dataUser = userModels.getList({user_id: req.session.user.user_id, is_deleted: 0});
         dataUser.then(function (data) {
@@ -59,7 +60,7 @@ router.get("/doi-mat-khau.html", function (req, res) {
     }
 });
 
-router.post("/doi-mat-khau.html", function (req, res) {
+router.post("/change-password", function (req, res) {
     var params = req.body;
 
     if (params.password.trim().length == 0) {
@@ -102,12 +103,11 @@ router.post("/doi-mat-khau.html", function (req, res) {
     });
 });
 
-
-router.get("/quen-mat-khau.html", function (req, res) {
+router.get("/lost-password", function (req, res) {
     res.render("lost-password", {data: {error: false}});
 });
 
-router.get("/khoi-phuc-mat-khau.html", function (req, res) {
+router.get("/recovery-password", function (req, res) {
     var key = req.query.key;
     if (key == null) {
         return res.redirect("/");
@@ -122,10 +122,10 @@ router.get("/khoi-phuc-mat-khau.html", function (req, res) {
     });
 });
 
-router.post("/khoi-phuc-mat-khau.html", function (req, res) {
+router.post("/recovery-password", function (req, res) {
     var params = req.body;
     var key = req.query.key;
-    
+
     if (params.email) {
         if (params.password.trim().length == 0) {
             res.render("recovery-password", {data: {error: "Vui lòng nhập mật khẩu mới"}});
@@ -162,13 +162,29 @@ router.post("/khoi-phuc-mat-khau.html", function (req, res) {
     return res.render("recovery-password", {data: {error: "Liên kết đã hết hạn"}});
 });
 
-router.post("/quen-mat-khau.html", function (req, res) {
+router.post("/lost-password", function (req, res) {
     var params = req.body;
 
     if (params.email.trim().length == 0) {
         res.render("lost-password", {data: {error: "Vui lòng nhập email"}});
         return;
     }
+    
+    if (params['g-recaptcha-response'] === undefined || params['g-recaptcha-response'] === '' || params['g-recaptcha-response'] === null) {
+        res.render("lost-password", {data: {error: "Vui lòng hoàn tất captcha"}});
+        return;
+    }
+    
+    var secretKey = "6LeFW2EUAAAAAG0gd2zdIPCPoMcfL073HyQJl3dH";
+
+    var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
+    
+    request(verificationUrl, function (error, response, body) {
+        body = JSON.parse(body);
+        if (body.success !== undefined && !body.success) {
+            return res.render("lost-password", {data: {error: "Xác nhận captcha lỗi! Xin thử lại"}});
+        }
+    });
 
     var checkUser = userModels.getList({email: params.email.trim(), is_deleted: 0});
     if (checkUser) {
@@ -182,7 +198,7 @@ router.post("/quen-mat-khau.html", function (req, res) {
 
             var replacements = {
                 fullname: userData.fullname,
-                link: config.bareURL + "/khoi-phuc-mat-khau.html?key=" + key
+                link: config.bareURL + "/recovery-password?key=" + key
             };
             var pathTemplate = './public/email/lost-password.html';
 
@@ -214,6 +230,11 @@ router.get("/logout", function (req, res) {
 router.post("/login", function (req, res) {
     var params = req.body;
 
+    if (params['g-recaptcha-response'] === undefined || params['g-recaptcha-response'] === '' || params['g-recaptcha-response'] === null) {
+        res.render("signin", {data: {error: "Vui lòng hoàn tất captcha"}});
+        return;
+    }
+
     if (params.email.trim().length == 0) {
         res.render("signin", {data: {error: "Vui lòng nhập email"}});
         return;
@@ -223,6 +244,17 @@ router.post("/login", function (req, res) {
         res.render("signin", {data: {error: "Vui lòng nhập mật khẩu"}});
         return;
     }
+
+    var secretKey = "6LeFW2EUAAAAAG0gd2zdIPCPoMcfL073HyQJl3dH";
+
+    var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
+    
+    request(verificationUrl, function (error, response, body) {
+        body = JSON.parse(body);
+        if (body.success !== undefined && !body.success) {
+            return res.render("signin", {data: {error: "Xác nhận captcha lỗi! Xin thử lại"}});
+        }
+    });
 
     var arrCondition = {
         email: params.email
@@ -264,6 +296,11 @@ router.get("/register", function (req, res) {
 
 router.post("/register", function (req, res) {
     var params = req.body;
+    
+    if (params['g-recaptcha-response'] === undefined || params['g-recaptcha-response'] === '' || params['g-recaptcha-response'] === null) {
+        res.render("register", {data: {error: "Vui lòng hoàn tất captcha"}});
+        return;
+    }
 
     if (params.fullname.trim().length === 0) {
         return res.render("register", {data: {error: "Vui lòng nhập họ tên"}});
@@ -276,6 +313,17 @@ router.post("/register", function (req, res) {
     if (params.email.trim().length === 0) {
         return res.render("register", {data: {error: "Vui lòng nhập email"}});
     }
+    
+    var secretKey = "6LeFW2EUAAAAAG0gd2zdIPCPoMcfL073HyQJl3dH";
+
+    var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
+    
+    request(verificationUrl, function (error, response, body) {
+        body = JSON.parse(body);
+        if (body.success !== undefined && !body.success) {
+            return res.render("register", {data: {error: "Xác nhận captcha lỗi! Xin thử lại"}});
+        }
+    });
 
     var checkUser = userModels.getList({email: params.email.trim(), is_deleted: 0});
     if (checkUser) {
