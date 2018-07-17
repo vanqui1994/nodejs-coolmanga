@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include ../layout/head %>
+    </head>
+    <body>
+        <section id="container" >
+            <%- include ../layout/header %>
+            <%- include ../layout/sidebar %>
+            <!--main content start-->
+            <section id="main-content">
+                <section class="wrapper site-min-height">
+                    <%if(message && message.error){%>
+                    <div class="alert alert-block alert-danger fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-times-sign"></i> Lỗi!</h4>
+                        <p><%= message.error %></p>
+                    </div>
+                    <%}%>
+                    <%if(message && message.success){%>
+                    <div class="alert alert-success alert-block fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-ok-sign"></i> Hoàn tất!</h4>
+                        <p><%= message.success %></p>
+                    </div>
+                    <%}%>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <section class="panel panel-primary">
+                                <header class="panel-heading">
+                                    Thêm truyện mới
+                                    <img id="loading" src="/static/admin/img/loading.gif" style="display: none"/>
+                                </header>
+                                <div class="panel-body">
+                                    <form id="frm" class="form-horizontal tasi-form" role="form" action="/admin/comic/add" method="POST">
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="urlDestination">Link grab thông tin</label>
+                                            <div class="col-lg-8">
+                                                <input type="url" name="urlDestination" id="urlDestination" class="form-control" placeholder="Link grab thông tin" value=""/>
+                                                <small>(Chỉ hỗ trợ nettruyen,comicvn)</small>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <button type="button" class="btn btn-danger btnGrab">Grab thông tin</button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="comicTitle">Tên truyện <span style="color:red">*</span></label>
+                                            <div class="col-lg-10">
+                                                <input name="comicTitle" id="comicTitle" class="form-control" value="" placeholder="Vui lòng nhập tên truyện"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="comicCategoryID">Thể loại </label>
+                                            <div class="col-lg-10">
+                                                <% objCategoryList.forEach(function(el, index) { %>
+                                                <div class="col-sm-3 m-b-5">
+                                                    <div class="checkbox">
+                                                        <label>
+                                                            <input type="checkbox" class="btn btn-primary checkbox" data-name="<%= el.category_title %>" name="comicCategoryID[]" value="<%= el.category_id %>"/> <%= el.category_title %>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <% })%>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="comicAuthor">Tác giả <span style="color:red">*</span></label>
+                                            <div class="col-lg-10">
+                                                <input name="tagsinput" id="comicAuthor" class="tagsinput " value="" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="status">Trạng thái</label>
+                                            <div class="col-lg-10">
+                                                <select name="status" class="form-control">
+                                                    <option value="1">Chưa hoàn thành</option>
+                                                    <option value="2">Đã hoàn thành</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="silder">Hiển thị trên slide</label>
+                                            <div class="col-lg-10">
+                                                <select name="silder" class="form-control">
+                                                    <option value="1">Không hiển thị</option>
+                                                    <option value="2">Hiển thị</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="content">Chi tiết <span style="color:red">*</span></label>
+                                            <div class="col-lg-10">
+                                                <textarea id="description" class="form-control content" name="content"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label" for="comicImage">Hình ảnh <span style="color:red">*</span></label>
+                                            <div class="col-lg-10">
+                                                <div id="avatar_upload">
+                                                    <input type="file" name="comicImage" id="comicImage" class="ignore"/>
+                                                </div>
+                                                <div id="progress"></div>
+                                                <ul class="logoImageList"></ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-lg-offset-2 col-lg-10">
+                                                <button type="submit" class="btn btn-info">Hoàn tất</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+                 <div style="width: 0; height: 0; overflow: hidden;" id="news_image_upload"></div>
+                <!--main content end-->
+                <%- include ../layout/footer %>
+            </section>
+            <%- include ../layout/script %>
+            <script src="/static/admin/js/lib/Nileupload.js"></script>
+            <script src="/static/admin/js/lib/jquery.validate.min.js"></script>
+            <script src="/static/admin/js/lib/jquery.tagsinput.js"></script>
+            <script src="/static/tinymce/tinymce.min.js"></script>
+            <script src="/static/admin/js/my/comic.js"></script>
+            <script>
+                $(".tagsinput").tagsInput();
+                Comic.add();
+            </script>
+    </body>
+</html>

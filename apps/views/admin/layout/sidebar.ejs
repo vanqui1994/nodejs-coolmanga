@@ -66,6 +66,20 @@
                     </li>
                 </ul>
             </li>
+            <li class="sub-menu">
+                <a href="javascript:;" class="<%= (stuff.url === '/admin/comic' || stuff.url === '/admin/comic/add')?'active dcjq-parent':''%>">
+                    <i class="fa fa-paperclip"></i>
+                    <span>Truyện</span>
+                </a>
+                <ul class="sub">
+                    <li class="<%= (stuff.url === '/admin/comic')?'active':''%>">
+                        <a href="/admin/comic">Danh sách truyện</a>
+                    </li>
+                    <li class="<%= (stuff.url === '/admin/comic/add')?'active':''%>">
+                        <a href="/admin/comic/add">Thêm truyện mới</a>
+                    </li>
+                </ul>
+            </li>
 
         </ul>
         <!-- sidebar menu end-->

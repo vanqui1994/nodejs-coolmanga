@@ -75,7 +75,7 @@ function getList(params) {
         var defer = q.defer();
         var strWhere = buildWhere(params);
         var sql = 'SELECT * FROM category WHERE 1=1 ' + strWhere + ' ORDER BY category_id DESC';
-
+        
         var key = keyCached + sql;
         var result = '';
         myCache.get(key, function (err, value) {
@@ -177,6 +177,13 @@ function buildWhere(params) {
         strWhere += " AND is_deleted = " + conn.escape(params.is_deleted);
     }
 
+    if (params.categoryList) {
+        strWhere += " AND (0=1 OR ";
+        params.categoryList.forEach(function (val) {
+            strWhere += " category_title = "+ conn.escape(val) + " OR ";
+        });
+        strWhere += " 0=1)";
+    }
 
 
     return strWhere;
@@ -200,6 +207,8 @@ function buildParams(params) {
     if (params.site_title) {
         strParams += " site_title = " + conn.escape(params.site_title) + ",";
     }
+
+    
 
     strParams = strParams.replace(/(^,)|(,$)/g, "");
 

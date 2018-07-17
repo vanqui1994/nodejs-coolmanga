@@ -5,6 +5,10 @@ const fs = require('fs');
 var mkdirp = require('mkdirp');
 var unique = require('array-unique');
 var slug = require('slug');
+var request = require('request');
+const  xpath = require('xpath');
+const dom = require('xmldom').DOMParser;
+const url = require('url');
 
 
 var configModels = require("../models/config");
@@ -799,8 +803,8 @@ router.get("/menu/edit/:id", async function (req, res) {
         var dataMenu = await menuModels.getList({menuID: params.id, is_deleted: 0}).then(function (data) {
             return (data.length != 0) ? data[0] : '';
         });
-        
-        if(dataMenu.length == 0){
+
+        if (dataMenu.length == 0) {
             return res.redirect("/admin/menu");
         }
 
@@ -876,25 +880,25 @@ router.get("/menu/remove", async function (req, res) {
         var params = req.query;
 
         var menuID = parseInt(params.menuID);
-        if(menuID.length == 0){
+        if (menuID.length == 0) {
             return res.json({success: 0, error: 1, message: 'Id không được bỏ trống'});
         }
         var checkMenu = await menuModels.getList({menuID: menuID, is_deleted: 0}).then(function (data) {
             return (data.length != 0) ? data[0] : '';
         });
-        
-        if(checkMenu.length == 0){
+
+        if (checkMenu.length == 0) {
             return res.json({success: 0, error: 1, message: 'Id không tồn tại'});
         }
-        
+
         var checkMenuParent = await menuModels.getList({parentID: menuID, is_deleted: 0}).then(function (data) {
             return (data.length != 0) ? data[0] : '';
         });
-        
-        if(checkMenuParent){
+
+        if (checkMenuParent) {
             return res.json({success: 0, error: 1, message: 'Không thể xóa danh mục chính'});
         }
-        
+
         menuModels.edit({menuID: menuID}, {is_deleted: 1}).then(function (data) {
             if (data) {
                 return res.json({success: 1, error: 0, message: 'Xóa menu thành công'});
@@ -910,33 +914,128 @@ router.get("/menu/remove", async function (req, res) {
 
 
 //action comic
-router.get("/comic", async function(req,res){
-    
+router.get("/comic", async function (req, res) {
+    if (isSignIn(req, res)) {
+        res.render("admin/comic/index", {data: {}, message: {}});
+    }
 });
 
-router.get("/comic/add",function(req,res){
-    
+router.get("/comic/add", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var objCategoryList = await categoryModels.getList({is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data : '';
+        });
+
+        res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {}});
+    }
 });
 
-router.post("/comic/add", async function(req,res){
-    
+router.post("/comic/add", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var params = req.params;
+        var body = req.body;
+        console.log(body);
+    }
 });
 
-router.get("/comic/edit/:id", async function(req,res){
-    
+router.get("/comic/edit/:id", async function (req, res) {
+
 });
 
-router.post("/comic/edit/:id", async function(req,res){
-    
+router.post("/comic/edit/:id", async function (req, res) {
+
 });
 
-router.get("/comic/remove", async function(req,res){
-    
+router.get("/comic/remove", async function (req, res) {
+
 });
 
-router.post("/comic/grab",async function(req,res){
-    
+router.post("/comic/grab", async function (req, res) {
+    if (isSignIn(req, res)) {
+        var body = req.body;
+
+        var linkGrab = body.url;
+        if (linkGrab.trim().length == 0) {
+            return res.json({success: 0, error: 1, message: 'Link grab không được bỏ trống'});
+        }
+
+        var options = {
+            method: 'GET',
+            url: linkGrab
+        };
+
+        const myURL = new URL(linkGrab);
+
+        request(options, function (error, response, body) {
+            if (error) {
+                throw new Error(error);
+            }
+
+            var html = body;
+            var doc = new dom({errorHandler: {warning: (msg) => {
+                    }}}).parseFromString(html);
+
+            var arrComic = {};
+            switch (myURL.hostname) {
+                case 'www.nettruyen.com':
+                    arrComic = netTruyen(doc);
+                    break;
+                case 'comicvn.net':
+                    arrComic = comicVn(doc);
+                    break;
+                default:
+                    break;
+            }
+
+            if (arrComic) {
+                return res.json({success: 1, error: 0, message: 'Grab truyện thành công', data: arrComic});
+            }
+            return res.json({success: 0, error: 1, message: 'Grab truyện không thành công'});
+        });
+    }
 });
+
+function netTruyen(doc) {
+    var arrComic = {};
+
+    var title = xpath.select("string(//div[@class='container']/div[@class='row']/div[@id='ctl00_divCenter']/article[@id='item-detail']/h1[@class='title-detail'])", doc);
+    arrComic.title = title;
+
+    var author = xpath.select("string(//div[@class='row']/div[@class='col-xs-8 col-info']/ul[@class='list-info']/li[@class='author row']/p[@class='col-xs-8'])", doc);
+    author = author.replace(/ - /g, ',');
+    arrComic.author = author;
+
+    var content = xpath.select("string(//div[@class='container']/div[@class='row']/div[@id='ctl00_divCenter']/article[@id='item-detail']/div[@class='detail-content']/p)", doc);
+    arrComic.content = content;
+
+    var image = xpath.select("string(//div[@class='container']/div[@class='row']/div[@id='ctl00_divCenter']/article[@id='item-detail']/div[@class='detail-info']/div[@class='row']/div[@class='col-xs-4 col-image']/img/@src)", doc);
+    arrComic.image = image;
+
+    var categoryList = xpath.select("string(//div[@class='container']/div[@class='row']/div[@id='ctl00_divCenter']/article[@id='item-detail']/div[@class='detail-info']/div[@class='row']/div[@class='col-xs-8 col-info']/ul[@class='list-info']/li[@class='kind row']/p[@class='col-xs-8'])", doc);
+    categoryList = categoryList.replace(/ - /g, ',');
+    categoryList = categoryList.split(',');
+    arrComic.categoryList = categoryList;
+
+    return arrComic;
+}
+
+function comicVn(doc) {
+    var arrComic = {};
+
+    var title = xpath.select("string(//div[@class='manga-info-main']/div[@class='manga-info']/div[@class='sub'][1]/div[@class='sub-bor']/h1)", doc);
+    arrComic.title = title;
+
+    var author = xpath.select("string(//div[@class='manga-info-main']/div[@class='manga-info']/div[@class='margin-top-10 manga-detail']/div[@class='col-xs-9']/div/ul/li[4]/span[2])", doc);
+    arrComic.author = (author) ? author : 'Đang cập nhật';
+
+    var content = xpath.select("string(//div[@class='manga-info-main']/div[@class='manga-info']/div[@class='margin-top-10 manga-summary'])", doc);
+    arrComic.content = content;
+
+    var image = xpath.select("string(//div[@class='manga-info-main']/div[@class='manga-info']/div[@class='margin-top-10 manga-detail']/div[@class='col-xs-3']/div[@class='row']/img/@src)", doc);
+    arrComic.image = image;
+
+    return arrComic;
+}
 
 ///////////////////////////////
 
