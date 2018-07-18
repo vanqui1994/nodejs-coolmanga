@@ -1,8 +1,121 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include ../layout/head %>
+    </head>
+    <body>
+        <section id="container" >
+            <%- include ../layout/header %>
+            <%- include ../layout/sidebar %>
+            <!--main content start-->
+            <section id="main-content">
+                <section class="wrapper site-min-height">
+                    <%if(message && message.error){%>
+                    <div class="alert alert-block alert-danger fade in">
+                        <button class="close close-sm" type="button" data-dismiss="alert">
+                            <i class="fa fa-times"></i>
+                        </button>
+                        <h4><i class="fa fa-times-sign"></i> Lỗi!</h4>
+                        <p><%= message.error %></p>
+                    </div>
+                    <%}%>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <section class="panel panel-primary">
+                                <header class="panel-heading">
+                                    Danh sách truyện
+                                    <button type="button" class="btn btn-success pull-right" id="btnToggleFilterOrder" style="margin:-6px -11px 0 0;">Ẩn/Hiện công cụ tìm kiếm</button>
+                                </header>
+                                <div class="panel-body" id="frmFilterVehicleTrip" style="">
+                                    <div id="frmFilterOrder" class="panel-body" style="<%= (params.isFilter == 1)?'display:block;':'display:none;' %>">
+                                        <form method="GET">
+                                            <input type="hidden" id="isFilter" name="isFilter" value="1"/>
+                                            <table class="table table-bordered table-condensed cf">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="col-sm-1" style="font-weight:600;">Tên truyện</td>
+                                                        <td class="col-sm-5" style="font-weight:600;">
+                                                            <input id="orderID" type="text" name="newsTitle" class="form-control orderFilter" placeholder="Nhập tên truyện" value="">
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <a  href="/admin/news" class="btn btn-danger">Bỏ tìm kiếm</a>
+                                            <button type="submit" class="btn btn-info">Tìm kiếm</button>
+                                        </form>
 
-/* 
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+                                    </div>
+                                    <button type="button" class="btn btn-warning showBtn" id="btnDelAll" style="display: none">Xóa tất cả</button>
+                                    <hr class="showBtn" style="display: none"/>
 
+                                    <table class="table table-hover table-bordered table-striped cf">
+                                        <thead class="cf">
+                                        <th class="text-center" style="width: 3%">
+                                            <input type="checkbox" name="listID" value="" id="selectAllItem">
+                                        </th>
+                                        <th class="text-center">ID</th>
+                                        <th class="text-center" style="width: 7%">Hình ảnh</th>
+                                        <th>Tên truyện</th>
+                                        <th class="text-center">Thể loại</th>
+                                        <th class="text-center">Trạng thái</th>
+                                        <th class="text-center">Chức năng</th>
+                                        </thead>
+                                        <tbody>
+                                            <% if(data){%>
+                                            <% data.forEach(function(el, index) { %>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" name="listID" class="listID" value="<%= el.comic_id%>">
+                                                </td>
+                                                <td class="text-center">
+                                                    <b><%= el.comic_id%></b>
+                                                </td>
+                                                <td class="text-center">
+                                                    <img src="<%= el.comic_image %>" width="100px" height="100px" alt="<%= el.comic_title%>" title="<%= el.comic_title%>"/>
+                                                </td>
+                                                <td>
+                                                    <a href="" target="_blank" style="color: red;font-weight: bold"><%= el.comic_title%></a><br>
+                                                    Lượt xem: <%= el.view_day %>                                        
+                                                </td>
+                                                <td class="text-center">
+                                                    <font style="color: blue;font-weight: bold"><%= el.list_category%></font>
+                                                </td>
+                                                <td class="text-center">
+                                                    <% if(el.status == 1){ %>
+                                                    <button type="button" class="btn btn-warning">Đang Cập Nhật</button><br>
+                                                    <%}else{%>
+                                                    <button type="button" class="btn btn-success">Đã hoàn thành</button><br>
+                                                    <%}%>
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="/admin/comic/edit/<%= el.comic_id%>" class="btn btn-info fa fa-pencil action tooltips" data-placement="top" data-original-title="Chỉnh sửa"></a>
+                                                    <button type="button" class="btn btn-danger fa fa-trash action tooltips btnDel" data-id="<%= el.comic_id%>" data-placement="top" data-original-title="Xóa"></button>
+                                                    <a href="/admin/news/edit/<%= el.news_id%>" class="btn btn-warning fa fa-puzzle-piece action tooltips" data-placement="top" data-original-title="Thêm chap"></a>
+                                                    <a href="/admin/news/edit/<%= el.news_id%>" class="btn btn-success fa fa-file-text action tooltips" data-placement="top" data-original-title="Danh sách chap"></a>
+                                                    
+                                                </td>
+                                            </tr>
+                                            <% })%>
+                                            <% }else{ %>
+
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                    <div class="text-center">
+                                        <%- paging %>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+
+                <%- include ../layout/footer %>
+            </section>
+            <%- include ../layout/script %>
+            <script src="/static/admin/js/my/news.js"></script>
+            <script>
+                News.index();
+            </script>
+    </body>
+</html>

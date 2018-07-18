@@ -919,7 +919,31 @@ router.get("/menu/remove", async function (req, res) {
 //action comic
 router.get("/comic", async function (req, res) {
     if (isSignIn(req, res)) {
-        res.render("admin/comic/index", {data: {}, message: {}});
+        if (isSignIn(req, res)) {
+            var paramsQuery = req.query;
+
+            var intLimit = 15;
+            var intPage = (typeof paramsQuery.page !== 'undefined') ? parseInt(paramsQuery.page) : 1;
+
+            var objCondition = {
+                concat_category: true,
+                group_comic: true,
+                join_category: true,
+                is_deleted: 0
+            };
+
+            var intTotal = await newsModels.getTotal(objCondition).then(function (data) {
+                return (data.length != 0) ? data[0].total : 0;
+            });
+
+            var paging = helper.paging("admin/comic", paramsQuery, intTotal, intPage, intLimit);
+
+            var objComicList = await comicModels.getListLimit(objCondition, intPage, intLimit).then(function (data) {
+                return (data.length != 0) ? data : '';
+            });
+
+            res.render("admin/comic/index", {data: objComicList, paging: paging, params: paramsQuery, message: {}});
+        }
     }
 });
 
@@ -938,27 +962,27 @@ router.post("/comic/add", async function (req, res) {
         var objCategoryList = await categoryModels.getList({is_deleted: 0}).then(function (data) {
             return (data.length != 0) ? data : '';
         });
-        
+
         var body = req.body;
-        
+
         if (body.comicTitle.trim().length == 0) {
-            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng nhập tên truyện"}});
+            return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Vui lòng nhập tên truyện"}});
         }
 
         if (body.comicCategoryID.length == 0) {
-            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng chọn thể loại truyện"}});
+            return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Vui lòng chọn thể loại truyện"}});
         }
 
         if (body.tagsinput.trim().length == 0) {
-            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng nhập tên tác giả.Nếu không có thì ghi Đang cập nhật"}});
+            return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Vui lòng nhập tên tác giả.Nếu không có thì ghi Đang cập nhật"}});
         }
 
         if (body.content.trim().length == 0) {
-            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng nhập mô tả truyện"}});
+            return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Vui lòng nhập mô tả truyện"}});
         }
 
         if (body.comicImage.length == 0) {
-            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng upload hình"}});
+            return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Vui lòng upload hình"}});
         }
         var listImage = '';
         unique(body.comicImage).forEach(function (element) {
@@ -966,7 +990,7 @@ router.post("/comic/add", async function (req, res) {
                 listImage = element;
             }
         });
-        
+
         var arrAuthor = body.tagsinput.split(',');
         arrAuthor.forEach(async function (val) {
             var intAuthorID = await authorModels.getList({author_name: val.trim()}).then(function (data) {
@@ -979,7 +1003,7 @@ router.post("/comic/add", async function (req, res) {
                     author_slug: authorSlug,
                     is_deleted: 0
                 };
-                var intAuthorID = await authorModels.add(objData).then(function(data){
+                var intAuthorID = await authorModels.add(objData).then(function (data) {
                     return (data.length != 0) ? data : '';
                 });
             }
@@ -991,7 +1015,7 @@ router.post("/comic/add", async function (req, res) {
         });
         listCategoryID = listCategoryID.replace(/(^,)|(,$)/g, "");
 
-        
+
         var comicSlug = slug(body.comicTitle.trim().toLowerCase());
         var timestamp = new Date / 1E3 | 0;
 
@@ -1008,15 +1032,15 @@ router.post("/comic/add", async function (req, res) {
             url_destination: body.urlDestination.trim(),
             is_deleted: 0
         };
-        
+
         comicModels.add(objData).then(function (data) {
             if (data) {
-                return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {success: "Thêm truyện thành công"}});
+                return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {success: "Thêm truyện thành công"}});
             } else {
-                return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Không thể truyện hoặc truyện đã tồn tại"}});
+                return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Không thể truyện hoặc truyện đã tồn tại"}});
             }
         }).catch(function (err) {
-            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Không thể truyện hoặc truyện đã tồn tại"}});
+            return res.render("admin/comic/add", {data: {}, objCategoryList: objCategoryList, message: {error: "Không thể truyện hoặc truyện đã tồn tại"}});
         });
     }
 });

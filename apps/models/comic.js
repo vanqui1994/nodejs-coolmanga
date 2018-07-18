@@ -85,11 +85,27 @@ function getListLimit(params, intPage = 1, intLimit = 30, strOrder = 'comic_id D
         var strWhere = buildWhere(params);
         var offset = intLimit * (intPage - 1);
 
-        var sql = 'SELECT * FROM comic WHERE 1=1 ' + strWhere;
+        var sql = 'SELECT * ';
+        if(params.concat_category){
+            sql +=' ,GROUP_CONCAT(category_title SEPARATOR ",") as list_category ';
+        }
+        sql +=' FROM comic '; 
+        
+        if(params.join_category){
+            sql += ' LEFT JOIN category on FIND_IN_SET(category_id,category_id_list)';
+        }
+        
+        sql +=' WHERE 1=1 ' + strWhere;
         //tách ra để sau này có join 
+        if(params.group_comic){
+            sql += ' GROUP BY comic_id';
+        }
+        
         sql += ' ORDER BY ' + strOrder;
         sql += ' LIMIT ' + intLimit + ' OFFSET ' + offset;
-
+        
+        
+        console.log(sql);
         var key = keyCached + sql;
         var result = '';
 
@@ -121,6 +137,10 @@ function buildWhere(params) {
 
     if (params.comic_title) {
         strWhere += "AND comic_title = " + conn.escape(params.comic_title);
+    }
+    
+    if (params.is_deleted != null) {
+        strWhere += " AND comic.is_deleted = " + conn.escape(params.is_deleted);
     }
 
     return strWhere;
