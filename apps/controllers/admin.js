@@ -9,6 +9,7 @@ var request = require('request');
 const  xpath = require('xpath');
 const dom = require('xmldom').DOMParser;
 const url = require('url');
+const Entities = require('html-entities').AllHtmlEntities;
 
 
 var configModels = require("../models/config");
@@ -16,11 +17,13 @@ var categoryModels = require("../models/category");
 var authorModels = require("../models/author");
 var newsModels = require("../models/news");
 var menuModels = require("../models/menu");
+var comicModels = require("../models/comic");
 
 var helper = require("../helpers/helper");
 
 
 var router = express.Router();
+const entities = new Entities();
 
 
 router.get("/", function (req, res) {
@@ -932,9 +935,89 @@ router.get("/comic/add", async function (req, res) {
 
 router.post("/comic/add", async function (req, res) {
     if (isSignIn(req, res)) {
-        var params = req.params;
+        var objCategoryList = await categoryModels.getList({is_deleted: 0}).then(function (data) {
+            return (data.length != 0) ? data : '';
+        });
+        
         var body = req.body;
-        console.log(body);
+        
+        if (body.comicTitle.trim().length == 0) {
+            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng nhập tên truyện"}});
+        }
+
+        if (body.comicCategoryID.length == 0) {
+            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng chọn thể loại truyện"}});
+        }
+
+        if (body.tagsinput.trim().length == 0) {
+            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng nhập tên tác giả.Nếu không có thì ghi Đang cập nhật"}});
+        }
+
+        if (body.content.trim().length == 0) {
+            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng nhập mô tả truyện"}});
+        }
+
+        if (body.comicImage.length == 0) {
+            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Vui lòng upload hình"}});
+        }
+        var listImage = '';
+        unique(body.comicImage).forEach(function (element) {
+            if (element != '') {
+                listImage = element;
+            }
+        });
+        
+        var arrAuthor = body.tagsinput.split(',');
+        arrAuthor.forEach(async function (val) {
+            var intAuthorID = await authorModels.getList({author_name: val.trim()}).then(function (data) {
+                return (data.length != 0) ? data[0].author_id : '';
+            });
+            if (intAuthorID == '') {
+                var authorSlug = slug(val.trim().toLowerCase());
+                var objData = {
+                    author_name: val.trim(),
+                    author_slug: authorSlug,
+                    is_deleted: 0
+                };
+                var intAuthorID = await authorModels.add(objData).then(function(data){
+                    return (data.length != 0) ? data : '';
+                });
+            }
+        });
+
+        var listCategoryID = '';
+        body.comicCategoryID.forEach(function (element) {
+            listCategoryID += element + ",";
+        });
+        listCategoryID = listCategoryID.replace(/(^,)|(,$)/g, "");
+
+        
+        var comicSlug = slug(body.comicTitle.trim().toLowerCase());
+        var timestamp = new Date / 1E3 | 0;
+
+        var objData = {
+            comic_title: body.comicTitle.trim(),
+            comic_slug: comicSlug,
+            comic_image: listImage,
+            slider: body.slider,
+            status: body.status,
+            author: body.tagsinput.trim(),
+            category_id_list: listCategoryID,
+            content: entities.decode(body.content.trim()),
+            created_date: timestamp,
+            url_destination: body.urlDestination.trim(),
+            is_deleted: 0
+        };
+        
+        comicModels.add(objData).then(function (data) {
+            if (data) {
+                return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {success: "Thêm truyện thành công"}});
+            } else {
+                return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Không thể truyện hoặc truyện đã tồn tại"}});
+            }
+        }).catch(function (err) {
+            return res.render("admin/comic/add", {data: {},objCategoryList: objCategoryList, message: {error: "Không thể truyện hoặc truyện đã tồn tại"}});
+        });
     }
 });
 

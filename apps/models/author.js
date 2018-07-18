@@ -14,7 +14,7 @@ function add(params) {
             if (error) {
                 defer.reject(error);
             } else {
-                defer.resolve(results);
+                defer.resolve(results.insertId);
             }
         });
         myCache.flushAll();
@@ -177,6 +177,13 @@ function buildWhere(params) {
         strWhere += " AND is_deleted = " + conn.escape(params.is_deleted);
     }
 
+    if (params.arrAuthor) {
+        strWhere += " AND (0=1 OR ";
+        params.arrAuthor.forEach(function (val) {
+            strWhere += " author_name = "+ conn.escape(val) + " OR ";
+        });
+        strWhere += " 0=1)";
+    }
 
 
     return strWhere;
